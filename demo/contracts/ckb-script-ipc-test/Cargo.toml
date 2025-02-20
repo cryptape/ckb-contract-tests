@@ -1,0 +1,21 @@
+[package]
+name = "ckb-script-ipc-test"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+ckb-std = { version = "0.16", default-features = false, features = ["allocator", "ckb-types", "dummy-atomic", "log"]}
+#ckb-script-ipc-common = { path = "../../crates/ckb-script-ipc-common" }
+ckb-script-ipc-common = "1.0.0"
+
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+ckb-script-ipc = "1.0.0"
+log = "0.4.25"
+
+[[bin]]
+name = "ckb-script-ipc-test-client"
+path = "src/client.rs"
+
+[[bin]]
+name = "ckb-script-ipc-test-serve"
+path = "src/server.rs"
