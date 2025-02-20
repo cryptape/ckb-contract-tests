@@ -1,9 +1,9 @@
+use crate::cell_message::cell::MoleculeStructFlag;
+use crate::prelude::ContextExt;
+use crate::{impl_cell_methods, impl_cell_methods_without_import, ContractUtil};
 use ckb_testtool::ckb_hash::blake2b_256;
 use ckb_testtool::ckb_types::core::TransactionBuilder;
 use ckb_testtool::ckb_types::prelude::Entity;
-use crate::cell_message::cell::MoleculeStructFlag;
-use crate::{ContractUtil, impl_cell_methods, impl_cell_methods_without_import};
-use crate::prelude::ContextExt;
 
 #[derive(Default)]
 pub struct ITPLArgErrCell {
@@ -35,13 +35,21 @@ fn test_1_to_0_arg_too_low_err_encoding() {
     let input_type_proxy_contract = ct.deploy_contract("input-type-proxy-lock");
     let tx = TransactionBuilder::default().build();
     let input_cell = ITPLArgErrCell::default();
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 1000);
     let tx = ct.context.complete_tx(tx);
-    let ret = ct.context.should_be_failed(&tx, 1000000).expect_err("Encoding");
+    let ret = ct
+        .context
+        .should_be_failed(&tx, 1000000)
+        .expect_err("Encoding");
     assert!(ret.to_string().contains("code 4"))
 }
-
 
 ///
 /// 1->0
@@ -54,14 +62,22 @@ fn test_1_to_0_type_empty_err() {
     let input_type_proxy_contract = ct.deploy_contract("input-type-proxy-lock");
     let tx = TransactionBuilder::default().build();
     let input_cell = ITPLCell::default();
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 1000);
     let tx = ct.context.complete_tx(tx);
-    let ret = ct.context.should_be_failed(&tx, 1000000).expect_err("Encoding");
+    let ret = ct
+        .context
+        .should_be_failed(&tx, 1000000)
+        .expect_err("Encoding");
     assert!(ret.to_string().contains("code 6"))
     // blake2b_256(ct.context.get_cell(&tx.inputs().get(0).unwrap().previous_output()).unwrap().0.lock().as_slice()),
 }
-
 
 /// 1->0
 ///
@@ -80,8 +96,23 @@ fn test_1_to_0_type_hash_eq_args() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_input(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &input_with_type_cell, 1000);
-    let hash = blake2b_256(ct.context.get_cell(&tx.inputs().get(0).unwrap().previous_output()).unwrap().0.type_().to_opt().expect("type script").as_slice());
+    let tx = ct.add_input(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &input_with_type_cell,
+        1000,
+    );
+    let hash = blake2b_256(
+        ct.context
+            .get_cell(&tx.inputs().get(0).unwrap().previous_output())
+            .unwrap()
+            .0
+            .type_()
+            .to_opt()
+            .expect("type script")
+            .as_slice(),
+    );
     let input_cell = ITPLCell {
         lock_arg: hash,
         type_arg: None,
@@ -89,7 +120,13 @@ fn test_1_to_0_type_hash_eq_args() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 1000);
     let tx = ct.context.complete_tx(tx);
     ct.context.should_be_passed(&tx, 1000000).expect("Encoding");
@@ -112,7 +149,13 @@ fn test_1_to_0_type_hash_not_eq_args() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_input(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &input_with_type_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &input_with_type_cell,
+        1000,
+    );
     // let hash = blake2b_256(ct.context.get_cell(&tx.inputs().get(0).unwrap().previous_output()).unwrap().0.type_().to_opt().expect("type script").as_slice());
     let input_cell = ITPLCell {
         lock_arg: [1; 32],
@@ -121,10 +164,19 @@ fn test_1_to_0_type_hash_not_eq_args() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 1000);
     let tx = ct.context.complete_tx(tx);
-    let ret = ct.context.should_be_failed(&tx, 1000000).expect_err("InvalidUnlock");
+    let ret = ct
+        .context
+        .should_be_failed(&tx, 1000000)
+        .expect_err("InvalidUnlock");
     assert!(ret.to_string().contains("code 6"))
 }
 
@@ -148,8 +200,23 @@ fn test_2_to_0_type_hash_eq_args() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_input(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &input_with_type_cell, 1000);
-    let hash = blake2b_256(ct.context.get_cell(&tx.inputs().get(0).unwrap().previous_output()).unwrap().0.type_().to_opt().expect("type script").as_slice());
+    let tx = ct.add_input(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &input_with_type_cell,
+        1000,
+    );
+    let hash = blake2b_256(
+        ct.context
+            .get_cell(&tx.inputs().get(0).unwrap().previous_output())
+            .unwrap()
+            .0
+            .type_()
+            .to_opt()
+            .expect("type script")
+            .as_slice(),
+    );
     let input_cell = ITPLCell {
         lock_arg: hash,
         type_arg: None,
@@ -157,8 +224,20 @@ fn test_2_to_0_type_hash_eq_args() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 3000);
     let tx = ct.context.complete_tx(tx);
     ct.context.should_be_passed(&tx, 1000000).expect("Encoding");
@@ -184,11 +263,32 @@ fn test_2_to_0_type_hash_eq_args_in_diff_cell() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_input(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &input_with_type_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &input_with_type_cell,
+        1000,
+    );
     input_with_type_cell.type_arg = Some(2);
-    let tx = ct.add_input(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &input_with_type_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &input_with_type_cell,
+        1000,
+    );
 
-    let hash = blake2b_256(ct.context.get_cell(&tx.inputs().get(1).unwrap().previous_output()).unwrap().0.type_().to_opt().expect("type script").as_slice());
+    let hash = blake2b_256(
+        ct.context
+            .get_cell(&tx.inputs().get(1).unwrap().previous_output())
+            .unwrap()
+            .0
+            .type_()
+            .to_opt()
+            .expect("type script")
+            .as_slice(),
+    );
     let input_cell = ITPLCell {
         lock_arg: hash,
         type_arg: None,
@@ -196,13 +296,24 @@ fn test_2_to_0_type_hash_eq_args_in_diff_cell() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 3000);
     let tx = ct.context.complete_tx(tx);
     ct.context.should_be_passed(&tx, 1000000).expect("Encoding");
 }
-
 
 /// 2->0
 ///
@@ -224,11 +335,32 @@ fn test_2_to_0_type_hash_eq_args_in_same_cell() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_input(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &input_with_type_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &input_with_type_cell,
+        1000,
+    );
     input_with_type_cell.type_arg = Some(2);
-    let tx = ct.add_input(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &input_with_type_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &input_with_type_cell,
+        1000,
+    );
 
-    let hash = blake2b_256(ct.context.get_cell(&tx.inputs().get(1).unwrap().previous_output()).unwrap().0.type_().to_opt().expect("type script").as_slice());
+    let hash = blake2b_256(
+        ct.context
+            .get_cell(&tx.inputs().get(1).unwrap().previous_output())
+            .unwrap()
+            .0
+            .type_()
+            .to_opt()
+            .expect("type script")
+            .as_slice(),
+    );
     let input_cell = ITPLCell {
         lock_arg: hash,
         type_arg: Some(2),
@@ -236,13 +368,24 @@ fn test_2_to_0_type_hash_eq_args_in_same_cell() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), Some(ct.alway_contract.clone()), &input_cell, 1000);
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), Some(ct.alway_contract.clone()), &input_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &input_cell,
+        1000,
+    );
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &input_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 3000);
     let tx = ct.context.complete_tx(tx);
     ct.context.should_be_passed(&tx, 1000000).expect("Encoding");
 }
-
 
 /// 2->0
 ///
@@ -264,9 +407,21 @@ fn test_2_to_0_type_hash_not_eq_args_in_same_cell() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_input(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &input_with_type_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &input_with_type_cell,
+        1000,
+    );
     input_with_type_cell.type_arg = Some(2);
-    let tx = ct.add_input(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &input_with_type_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &input_with_type_cell,
+        1000,
+    );
 
     // let hash = blake2b_256(ct.context.get_cell(&tx.inputs().get(1).unwrap().previous_output()).unwrap().0.type_().to_opt().expect("type script").as_slice());
     let input_cell = ITPLCell {
@@ -276,11 +431,26 @@ fn test_2_to_0_type_hash_not_eq_args_in_same_cell() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), Some(ct.alway_contract.clone()), &input_cell, 1000);
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), Some(ct.alway_contract.clone()), &input_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &input_cell,
+        1000,
+    );
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &input_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 3000);
     let tx = ct.context.complete_tx(tx);
-    let ret = ct.context.should_be_failed(&tx, 1000000).expect_err("InvalidUnlock");
+    let ret = ct
+        .context
+        .should_be_failed(&tx, 1000000)
+        .expect_err("InvalidUnlock");
 
     assert!(ret.to_string().contains("code 6"))
 }

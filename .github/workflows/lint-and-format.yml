@@ -33,6 +33,12 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
+      - name: Format code
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all
+
       - name: Check formatting
         uses: actions-rs/cargo@v1
         with:

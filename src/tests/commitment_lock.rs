@@ -5,11 +5,19 @@ use ckb_testtool::{
     ckb_types::{core::TransactionBuilder, prelude::*},
 };
 
+use crate::cell_message::cell::MoleculeStructFlag;
+use crate::cells::commitment_lock::{
+    CommitmentArgErrCell, CommitmentCellNoHtlcAndPreImage, CommitmentHTCL1Cell,
+    CommitmentHTCL1WithPreimageAndUDTCell, CommitmentHTCL2Cell,
+    CommitmentHTCL2WithPriImageAndUDTCell, CommitmentMaxErrLenWitness,
+    CommitmentMaxWitnessLenErrCell, CommitmentMinErrLenWitness, CommitmentMinWitnessLenErrCell,
+    CommitmentPendinghtlc1WithPreimageWitness, CommitmentPendinghtlc1Witness,
+    CommitmentPendinghtlc2WithPriImageWitness, CommitmentPendinghtlc2Witness, CommitmentWitness,
+    CommitmentWitnessNoHtlcAndPreImage, PendingHtlc,
+};
+use crate::ContractUtil;
 use ckb_testtool::ckb_types::prelude::{Builder, Entity};
 use sha2::{Digest, Sha256};
-use crate::cell_message::cell::MoleculeStructFlag;
-use crate::cells::commitment_lock::{CommitmentArgErrCell, CommitmentCellNoHtlcAndPreImage, CommitmentHTCL1Cell, CommitmentHTCL1WithPreimageAndUDTCell, CommitmentHTCL2Cell, CommitmentHTCL2WithPriImageAndUDTCell, CommitmentMaxErrLenWitness, CommitmentMaxWitnessLenErrCell, CommitmentMinErrLenWitness, CommitmentMinWitnessLenErrCell, CommitmentPendinghtlc1WithPreimageWitness, CommitmentPendinghtlc1Witness, CommitmentPendinghtlc2WithPriImageWitness, CommitmentPendinghtlc2Witness, CommitmentWitness, CommitmentWitnessNoHtlcAndPreImage, PendingHtlc};
-use crate::{ContractUtil};
 const MAX_CYCLES: u64 = 10_000_000;
 
 const EMPTY_WITNESS_ARGS: [u8; 16] = [16, 0, 0, 0, 16, 0, 0, 0, 16, 0, 0, 0, 16, 0, 0, 0];
@@ -32,14 +40,21 @@ fn test_01() {
         local_delay_epoch.as_u64().to_le_bytes().to_vec(),
         blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
         blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
-    ].concat();
+    ]
+    .concat();
 
     let args = blake2b_256(&witness_script)[0..20].to_vec();
 
     let mut commitment_cell = CommitmentCellNoHtlcAndPreImage::default();
     commitment_cell.lock_arg = <[u8; 20]>::try_from(args).unwrap();
     let mut tx = TransactionBuilder::default().build();
-    tx = ct.add_input(tx, commitment_contract.clone(), None, &commitment_cell, 1000);
+    tx = ct.add_input(
+        tx,
+        commitment_contract.clone(),
+        None,
+        &commitment_cell,
+        1000,
+    );
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     let tx = ct.context.complete_tx(tx);
@@ -57,17 +72,31 @@ fn test_01() {
     commitment_cell.witness = Some(CommitmentWitnessNoHtlcAndPreImage {
         empty_witness_args: EMPTY_WITNESS_ARGS,
         local_delay_epoch: local_delay_epoch.as_u64(),
-        local_delay_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec()).unwrap(),
-        revocation_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(revocation_key.1.serialize())[0..20].to_vec()).unwrap(),
+        local_delay_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
+        revocation_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
         unlock_type: 255,
         signature: <[u8; 65]>::try_from(signature).unwrap(),
     });
-    let tx = ct.replace_output(tx, ct.alway_contract.clone(), None, &commitment_cell, 500, 0);
+    let tx = ct.replace_output(
+        tx,
+        ct.alway_contract.clone(),
+        None,
+        &commitment_cell,
+        500,
+        0,
+    );
 
     println!("tx: {:?}", tx);
 
     // run
-    let cycles = ct.context
+    let cycles = ct
+        .context
         .verify_tx(&tx, 100000000)
         .expect("pass verification");
     println!("consume cycles: {}", cycles);
@@ -80,8 +109,20 @@ fn test_multiple_inputs_err() {
     let auth_contract = ct.deploy_contract("auth");
     let mut commitment_cell = CommitmentCellNoHtlcAndPreImage::default();
     let mut tx = TransactionBuilder::default().build();
-    tx = ct.add_input(tx, commitment_contract.clone(), None, &commitment_cell, 1000);
-    tx = ct.add_input(tx, commitment_contract.clone(), None, &commitment_cell, 1000);
+    tx = ct.add_input(
+        tx,
+        commitment_contract.clone(),
+        None,
+        &commitment_cell,
+        1000,
+    );
+    tx = ct.add_input(
+        tx,
+        commitment_contract.clone(),
+        None,
+        &commitment_cell,
+        1000,
+    );
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     let tx = ct.context.complete_tx(tx);
@@ -90,8 +131,7 @@ fn test_multiple_inputs_err() {
     println!("tx: {:?}", tx);
 
     // run
-    match ct.context
-        .verify_tx(&tx, 100000000) {
+    match ct.context.verify_tx(&tx, 100000000) {
         Ok(_) => {
             assert!(false)
         }
@@ -119,14 +159,22 @@ fn test_invalid_since_err() {
         local_delay_epoch.as_u64().to_le_bytes().to_vec(),
         blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
         blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
-    ].concat();
+    ]
+    .concat();
 
     let args = blake2b_256(&witness_script)[0..20].to_vec();
 
     let mut commitment_cell = CommitmentCellNoHtlcAndPreImage::default();
     commitment_cell.lock_arg = <[u8; 20]>::try_from(args).unwrap();
     let mut tx = TransactionBuilder::default().build();
-    tx = ct.add_input_with_since(tx, commitment_contract.clone(), None, &commitment_cell, Since::from_epoch(EpochNumberWithFraction::new(10, 0, 2), false).as_u64(), 1000);
+    tx = ct.add_input_with_since(
+        tx,
+        commitment_contract.clone(),
+        None,
+        &commitment_cell,
+        Since::from_epoch(EpochNumberWithFraction::new(10, 0, 2), false).as_u64(),
+        1000,
+    );
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     let tx = ct.context.complete_tx(tx);
@@ -144,18 +192,30 @@ fn test_invalid_since_err() {
     commitment_cell.witness = Some(CommitmentWitnessNoHtlcAndPreImage {
         empty_witness_args: EMPTY_WITNESS_ARGS,
         local_delay_epoch: local_delay_epoch.as_u64(),
-        local_delay_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec()).unwrap(),
-        revocation_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(revocation_key.1.serialize())[0..20].to_vec()).unwrap(),
+        local_delay_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
+        revocation_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
         unlock_type: 255,
         signature: <[u8; 65]>::try_from(signature).unwrap(),
     });
-    let tx = ct.replace_output(tx, ct.alway_contract.clone(), None, &commitment_cell, 500, 0);
+    let tx = ct.replace_output(
+        tx,
+        ct.alway_contract.clone(),
+        None,
+        &commitment_cell,
+        500,
+        0,
+    );
 
     println!("tx: {:?}", tx);
 
     // run
-    match ct.context
-        .verify_tx(&tx, 100000000) {
+    match ct.context.verify_tx(&tx, 100000000) {
         Ok(_) => {
             assert!(false)
         }
@@ -183,14 +243,21 @@ fn test_invalid_unlock_type_err() {
         local_delay_epoch.as_u64().to_le_bytes().to_vec(),
         blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
         blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
-    ].concat();
+    ]
+    .concat();
 
     let args = blake2b_256(&witness_script)[0..20].to_vec();
 
     let mut commitment_cell = CommitmentCellNoHtlcAndPreImage::default();
     commitment_cell.lock_arg = <[u8; 20]>::try_from(args).unwrap();
     let mut tx = TransactionBuilder::default().build();
-    tx = ct.add_input(tx, commitment_contract.clone(), None, &commitment_cell, 1000);
+    tx = ct.add_input(
+        tx,
+        commitment_contract.clone(),
+        None,
+        &commitment_cell,
+        1000,
+    );
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     let tx = ct.context.complete_tx(tx);
@@ -208,18 +275,30 @@ fn test_invalid_unlock_type_err() {
     commitment_cell.witness = Some(CommitmentWitnessNoHtlcAndPreImage {
         empty_witness_args: EMPTY_WITNESS_ARGS,
         local_delay_epoch: local_delay_epoch.as_u64(),
-        local_delay_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec()).unwrap(),
-        revocation_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(revocation_key.1.serialize())[0..20].to_vec()).unwrap(),
+        local_delay_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
+        revocation_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
         unlock_type: 254,
         signature: <[u8; 65]>::try_from(signature).unwrap(),
     });
-    let tx = ct.replace_output(tx, ct.alway_contract.clone(), None, &commitment_cell, 500, 0);
+    let tx = ct.replace_output(
+        tx,
+        ct.alway_contract.clone(),
+        None,
+        &commitment_cell,
+        500,
+        0,
+    );
 
     println!("tx: {:?}", tx);
 
     // run
-    match ct.context
-        .verify_tx(&tx, 100000000) {
+    match ct.context.verify_tx(&tx, 100000000) {
         Ok(_) => {
             assert!(false)
         }
@@ -241,7 +320,13 @@ fn test_args_len_error() {
     let auth_contract = ct.deploy_contract("auth");
     let commitment_cell = CommitmentArgErrCell::default();
     let mut tx = TransactionBuilder::default().build();
-    tx = ct.add_input(tx, commitment_contract.clone(), None, &commitment_cell, 1000);
+    tx = ct.add_input(
+        tx,
+        commitment_contract.clone(),
+        None,
+        &commitment_cell,
+        1000,
+    );
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     let tx = ct.context.complete_tx(tx);
@@ -250,8 +335,7 @@ fn test_args_len_error() {
     println!("tx: {:?}", tx);
 
     // run
-    match ct.context
-        .verify_tx(&tx, 100000000) {
+    match ct.context.verify_tx(&tx, 100000000) {
         Ok(_) => {
             assert!(false)
         }
@@ -276,7 +360,13 @@ fn test_witness_len_err_too_min() {
         signature: [1; 65],
     });
     let mut tx = TransactionBuilder::default().build();
-    tx = ct.add_input(tx, commitment_contract.clone(), None, &commitment_cell, 1000);
+    tx = ct.add_input(
+        tx,
+        commitment_contract.clone(),
+        None,
+        &commitment_cell,
+        1000,
+    );
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     let tx = ct.context.complete_tx(tx);
@@ -284,8 +374,7 @@ fn test_witness_len_err_too_min() {
     println!("tx: {:?}", tx);
 
     // run
-    match ct.context
-        .verify_tx(&tx, 100000000) {
+    match ct.context.verify_tx(&tx, 100000000) {
         Ok(_) => {
             assert!(false)
         }
@@ -312,7 +401,13 @@ fn test_witness_len_err_too_big() {
         err: [1; 5],
     });
     let mut tx = TransactionBuilder::default().build();
-    tx = ct.add_input(tx, commitment_contract.clone(), None, &commitment_cell, 1000);
+    tx = ct.add_input(
+        tx,
+        commitment_contract.clone(),
+        None,
+        &commitment_cell,
+        1000,
+    );
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     let tx = ct.context.complete_tx(tx);
@@ -320,8 +415,7 @@ fn test_witness_len_err_too_big() {
     println!("tx: {:?}", tx);
 
     // run
-    match ct.context
-        .verify_tx(&tx, 100000000) {
+    match ct.context.verify_tx(&tx, 100000000) {
         Ok(_) => {
             assert!(false)
         }
@@ -349,14 +443,21 @@ fn test_empty_witness_args_err() {
         local_delay_epoch.as_u64().to_le_bytes().to_vec(),
         blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
         blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
-    ].concat();
+    ]
+    .concat();
 
     let args = blake2b_256(&witness_script)[0..20].to_vec();
 
     let mut commitment_cell = CommitmentCellNoHtlcAndPreImage::default();
     commitment_cell.lock_arg = <[u8; 20]>::try_from(args).unwrap();
     let mut tx = TransactionBuilder::default().build();
-    tx = ct.add_input(tx, commitment_contract.clone(), None, &commitment_cell, 1000);
+    tx = ct.add_input(
+        tx,
+        commitment_contract.clone(),
+        None,
+        &commitment_cell,
+        1000,
+    );
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     let tx = ct.context.complete_tx(tx);
@@ -374,18 +475,30 @@ fn test_empty_witness_args_err() {
     commitment_cell.witness = Some(CommitmentWitnessNoHtlcAndPreImage {
         empty_witness_args: [1; 16],
         local_delay_epoch: local_delay_epoch.as_u64(),
-        local_delay_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec()).unwrap(),
-        revocation_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(revocation_key.1.serialize())[0..20].to_vec()).unwrap(),
+        local_delay_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
+        revocation_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
         unlock_type: 255,
         signature: <[u8; 65]>::try_from(signature).unwrap(),
     });
-    let tx = ct.replace_output(tx, ct.alway_contract.clone(), None, &commitment_cell, 500, 0);
+    let tx = ct.replace_output(
+        tx,
+        ct.alway_contract.clone(),
+        None,
+        &commitment_cell,
+        500,
+        0,
+    );
 
     println!("tx: {:?}", tx);
 
     // run
-    let cycles = match ct.context
-        .verify_tx(&tx, 100000000) {
+    let cycles = match ct.context.verify_tx(&tx, 100000000) {
         Ok(_) => {
             assert!(false)
         }
@@ -410,7 +523,13 @@ fn test_witness_hash_err() {
         signature: [1; 65],
     });
     let mut tx = TransactionBuilder::default().build();
-    tx = ct.add_input(tx, commitment_contract.clone(), None, &commitment_cell, 1000);
+    tx = ct.add_input(
+        tx,
+        commitment_contract.clone(),
+        None,
+        &commitment_cell,
+        1000,
+    );
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     let tx = ct.context.complete_tx(tx);
@@ -418,8 +537,7 @@ fn test_witness_hash_err() {
     println!("tx: {:?}", tx);
 
     // run
-    match ct.context
-        .verify_tx(&tx, 100000000) {
+    match ct.context.verify_tx(&tx, 100000000) {
         Ok(_) => {
             assert!(false)
         }
@@ -430,7 +548,6 @@ fn test_witness_hash_err() {
     };
 }
 
-
 #[test]
 fn test_output_lock_err() {
     // deploy contract
@@ -438,7 +555,6 @@ fn test_output_lock_err() {
     let commitment_lock_contract = ct.deploy_contract("commitment-lock");
     let auth_contract = ct.deploy_contract("auth");
     let udt_contract = ct.deploy_contract("simple_udt");
-
 
     // prepare script
     let mut generator = Generator::new();
@@ -475,7 +591,8 @@ fn test_output_lock_err() {
         blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
         blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
         expiry2.as_u64().to_le_bytes().to_vec(),
-    ].concat();
+    ]
+    .concat();
 
     let args = blake2b_256(&witness_script)[0..20].to_vec();
     let total_sudt_amount = 424242424242424242u128;
@@ -488,8 +605,13 @@ fn test_output_lock_err() {
         struct_flag: MoleculeStructFlag::default(),
     };
     let tx = TransactionBuilder::default().build();
-    let tx = ct.add_input(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc, 1000);
-
+    let tx = ct.add_input(
+        tx,
+        commitment_lock_contract.clone(),
+        Some(udt_contract.clone()),
+        &cc,
+        1000,
+    );
 
     let new_witness_script = [
         local_delay_epoch.as_u64().to_le_bytes().to_vec(),
@@ -501,7 +623,8 @@ fn test_output_lock_err() {
         blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
         blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
         expiry2.as_u64().to_le_bytes().to_vec(),
-    ].concat();
+    ]
+    .concat();
     let args = blake2b_256(&new_witness_script)[0..20].to_vec();
 
     let mut cc1 = CommitmentHTCL2WithPriImageAndUDTCell {
@@ -514,7 +637,13 @@ fn test_output_lock_err() {
         witness: None,
         struct_flag: MoleculeStructFlag::default(),
     };
-    let tx = ct.add_outpoint(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc1, 1000);
+    let tx = ct.add_outpoint(
+        tx,
+        commitment_lock_contract.clone(),
+        Some(udt_contract.clone()),
+        &cc1,
+        1000,
+    );
     let tx = ct.add_contract_cell_dep(tx, &auth_contract);
     let tx = ct.context.complete_tx(tx);
 
@@ -526,46 +655,69 @@ fn test_output_lock_err() {
         .unwrap()
         .serialize();
 
-
     cc1.witness = Some(CommitmentPendinghtlc2WithPriImageWitness {
         empty_witness_args: EMPTY_WITNESS_ARGS,
         local_delay_epoch: local_delay_epoch.as_u64(),
-        local_delay_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec()).unwrap(),
-        revocation_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(revocation_key.1.serialize())[0..20].to_vec()).unwrap(),
+        local_delay_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
+        revocation_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
         pending_htlc1: PendingHtlc {
             htlc_type: 0b00000000,
             payment_amount: payment_amount1,
             payment_hash: <[u8; 20]>::try_from(blake2b_256(preimage1)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry1.as_u64(),
         },
         pending_htlc2: PendingHtlc {
             htlc_type: 0b00000001,
             payment_amount: payment_amount2,
             payment_hash: <[u8; 20]>::try_from(blake2b_256(preimage2)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry2.as_u64(),
         },
         unlock_type: 0x0,
         signature: <[u8; 65]>::try_from(signature).unwrap(),
         preimage: preimage1,
     });
-    let tx = ct.replace_output(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc1, 1000, 0);
-
+    let tx = ct.replace_output(
+        tx,
+        commitment_lock_contract.clone(),
+        Some(udt_contract.clone()),
+        &cc1,
+        1000,
+        0,
+    );
 
     println!("tx: {:?}", tx);
 
     // run
-    let err = ct.context
+    let err = ct
+        .context
         .verify_tx(&tx, 100000000)
         .expect_err("OutputLockError");
 
     println!("err: {}", err);
     assert!(err.to_string().contains("code 14"))
 }
-
 
 #[test]
 fn test_output_type_err() {
@@ -574,7 +726,6 @@ fn test_output_type_err() {
     let commitment_lock_contract = ct.deploy_contract("commitment-lock");
     let auth_contract = ct.deploy_contract("auth");
     let udt_contract = ct.deploy_contract("simple_udt");
-
 
     // prepare script
     let mut generator = Generator::new();
@@ -611,7 +762,8 @@ fn test_output_type_err() {
         blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
         blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
         expiry2.as_u64().to_le_bytes().to_vec(),
-    ].concat();
+    ]
+    .concat();
 
     let args = blake2b_256(&witness_script)[0..20].to_vec();
     let total_sudt_amount = 424242424242424242u128;
@@ -624,8 +776,13 @@ fn test_output_type_err() {
         struct_flag: MoleculeStructFlag::default(),
     };
     let tx = TransactionBuilder::default().build();
-    let tx = ct.add_input(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc, 1000);
-
+    let tx = ct.add_input(
+        tx,
+        commitment_lock_contract.clone(),
+        Some(udt_contract.clone()),
+        &cc,
+        1000,
+    );
 
     let new_witness_script = [
         local_delay_epoch.as_u64().to_le_bytes().to_vec(),
@@ -637,7 +794,8 @@ fn test_output_type_err() {
         blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
         blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
         expiry2.as_u64().to_le_bytes().to_vec(),
-    ].concat();
+    ]
+    .concat();
     let args = blake2b_256(&new_witness_script)[0..20].to_vec();
 
     let mut cc1 = CommitmentHTCL2WithPriImageAndUDTCell {
@@ -651,7 +809,13 @@ fn test_output_type_err() {
         witness: None,
         struct_flag: MoleculeStructFlag::default(),
     };
-    let tx = ct.add_outpoint(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc1, 1000);
+    let tx = ct.add_outpoint(
+        tx,
+        commitment_lock_contract.clone(),
+        Some(udt_contract.clone()),
+        &cc1,
+        1000,
+    );
     let tx = ct.add_contract_cell_dep(tx, &auth_contract);
     let tx = ct.context.complete_tx(tx);
 
@@ -663,39 +827,63 @@ fn test_output_type_err() {
         .unwrap()
         .serialize();
 
-
     cc1.witness = Some(CommitmentPendinghtlc2WithPriImageWitness {
         empty_witness_args: EMPTY_WITNESS_ARGS,
         local_delay_epoch: local_delay_epoch.as_u64(),
-        local_delay_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec()).unwrap(),
-        revocation_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(revocation_key.1.serialize())[0..20].to_vec()).unwrap(),
+        local_delay_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
+        revocation_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
         pending_htlc1: PendingHtlc {
             htlc_type: 0b00000000,
             payment_amount: payment_amount1,
             payment_hash: <[u8; 20]>::try_from(blake2b_256(preimage1)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry1.as_u64(),
         },
         pending_htlc2: PendingHtlc {
             htlc_type: 0b00000001,
             payment_amount: payment_amount2,
             payment_hash: <[u8; 20]>::try_from(blake2b_256(preimage2)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry2.as_u64(),
         },
         unlock_type: 0x0,
         signature: <[u8; 65]>::try_from(signature).unwrap(),
         preimage: preimage1,
     });
-    let tx = ct.replace_output(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc1, 1000, 0);
-
+    let tx = ct.replace_output(
+        tx,
+        commitment_lock_contract.clone(),
+        Some(udt_contract.clone()),
+        &cc1,
+        1000,
+        0,
+    );
 
     println!("tx: {:?}", tx);
 
     // run
-    let err = ct.context
+    let err = ct
+        .context
         .verify_tx(&tx, 100000000)
         .expect_err("OutputLockError");
 
@@ -710,7 +898,6 @@ fn test_output_udt_amount_err() {
     let auth_contract = ct.deploy_contract("auth");
     let udt_contract = ct.deploy_contract("simple_udt");
 
-
     // prepare script
     let mut generator = Generator::new();
     // 42 hours = 4.5 epochs
@@ -746,7 +933,8 @@ fn test_output_udt_amount_err() {
         blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
         blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
         expiry2.as_u64().to_le_bytes().to_vec(),
-    ].concat();
+    ]
+    .concat();
 
     let args = blake2b_256(&witness_script)[0..20].to_vec();
     let total_sudt_amount = 424242424242424242u128;
@@ -759,8 +947,13 @@ fn test_output_udt_amount_err() {
         struct_flag: MoleculeStructFlag::default(),
     };
     let tx = TransactionBuilder::default().build();
-    let tx = ct.add_input(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc, 1000);
-
+    let tx = ct.add_input(
+        tx,
+        commitment_lock_contract.clone(),
+        Some(udt_contract.clone()),
+        &cc,
+        1000,
+    );
 
     let new_witness_script = [
         local_delay_epoch.as_u64().to_le_bytes().to_vec(),
@@ -772,7 +965,8 @@ fn test_output_udt_amount_err() {
         blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
         blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
         expiry2.as_u64().to_le_bytes().to_vec(),
-    ].concat();
+    ]
+    .concat();
     let args = blake2b_256(&new_witness_script)[0..20].to_vec();
 
     let mut cc1 = CommitmentHTCL2WithPriImageAndUDTCell {
@@ -786,7 +980,13 @@ fn test_output_udt_amount_err() {
         witness: None,
         struct_flag: MoleculeStructFlag::default(),
     };
-    let tx = ct.add_outpoint(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc1, 1000);
+    let tx = ct.add_outpoint(
+        tx,
+        commitment_lock_contract.clone(),
+        Some(udt_contract.clone()),
+        &cc1,
+        1000,
+    );
     let tx = ct.add_contract_cell_dep(tx, &auth_contract);
     let tx = ct.context.complete_tx(tx);
 
@@ -798,39 +998,63 @@ fn test_output_udt_amount_err() {
         .unwrap()
         .serialize();
 
-
     cc1.witness = Some(CommitmentPendinghtlc2WithPriImageWitness {
         empty_witness_args: EMPTY_WITNESS_ARGS,
         local_delay_epoch: local_delay_epoch.as_u64(),
-        local_delay_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec()).unwrap(),
-        revocation_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(revocation_key.1.serialize())[0..20].to_vec()).unwrap(),
+        local_delay_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
+        revocation_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
         pending_htlc1: PendingHtlc {
             htlc_type: 0b00000000,
             payment_amount: payment_amount1,
             payment_hash: <[u8; 20]>::try_from(blake2b_256(preimage1)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry1.as_u64(),
         },
         pending_htlc2: PendingHtlc {
             htlc_type: 0b00000001,
             payment_amount: payment_amount2,
             payment_hash: <[u8; 20]>::try_from(blake2b_256(preimage2)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry2.as_u64(),
         },
         unlock_type: 0x0,
         signature: <[u8; 65]>::try_from(signature).unwrap(),
         preimage: preimage1,
     });
-    let tx = ct.replace_output(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc1, 1000, 0);
-
+    let tx = ct.replace_output(
+        tx,
+        commitment_lock_contract.clone(),
+        Some(udt_contract.clone()),
+        &cc1,
+        1000,
+        0,
+    );
 
     println!("tx: {:?}", tx);
 
     // run
-    let err = ct.context
+    let err = ct
+        .context
         .verify_tx(&tx, 100000000)
         .expect_err("outputUdtAmountErr");
 
@@ -863,7 +1087,6 @@ fn test_preimage_received_err() {
     // timeout after 2024-04-02 01:00:00
     let expiry2 = Since::from_timestamp(1712062800, true).unwrap();
 
-
     let witness_script = [
         local_delay_epoch.as_u64().to_le_bytes().to_vec(),
         blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
@@ -880,7 +1103,8 @@ fn test_preimage_received_err() {
         blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
         blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
         expiry2.as_u64().to_le_bytes().to_vec(),
-    ].concat();
+    ]
+    .concat();
     let args = blake2b_256(&witness_script)[0..20].to_vec();
 
     let mut cell = CommitmentHTCL2Cell {
@@ -910,22 +1134,40 @@ fn test_preimage_received_err() {
     cell.witness = Some(CommitmentPendinghtlc2Witness {
         empty_witness_args: EMPTY_WITNESS_ARGS,
         local_delay_epoch: local_delay_epoch.as_u64(),
-        local_delay_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec()).unwrap(),
-        revocation_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(revocation_key.1.serialize())[0..20].to_vec()).unwrap(),
+        local_delay_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
+        revocation_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
         pending_htlc1: PendingHtlc {
             htlc_type: 0,
             payment_amount: payment_amount1,
             payment_hash: <[u8; 20]>::try_from(blake2b_256(preimage1)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry1.as_u64(),
         },
         pending_htlc2: PendingHtlc {
             htlc_type: 0b00000011,
             payment_amount: payment_amount2,
             payment_hash: <[u8; 20]>::try_from(Sha256::digest(preimage2)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry2.as_u64(),
         },
         unlock_type: 0x1,
@@ -934,7 +1176,8 @@ fn test_preimage_received_err() {
     let tx = ct.replace_output(tx, ct.alway_contract.clone(), None, &cell, 500, 0);
 
     // run
-    let err = ct.context
+    let err = ct
+        .context
         .verify_tx(&tx, 100000000)
         .expect_err("Error::PreimageError");
     assert!(err.to_string().contains("code 17"))
@@ -965,7 +1208,6 @@ fn test_preimage_offer_err() {
     // timeout after 2024-04-02 01:00:00
     let expiry2 = Since::from_timestamp(1712062800, true).unwrap();
 
-
     let witness_script = [
         local_delay_epoch.as_u64().to_le_bytes().to_vec(),
         blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
@@ -982,7 +1224,8 @@ fn test_preimage_offer_err() {
         blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
         blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
         expiry2.as_u64().to_le_bytes().to_vec(),
-    ].concat();
+    ]
+    .concat();
     let args = blake2b_256(&witness_script)[0..20].to_vec();
 
     let mut cell = CommitmentHTCL2Cell {
@@ -1012,22 +1255,40 @@ fn test_preimage_offer_err() {
     cell.witness = Some(CommitmentPendinghtlc2Witness {
         empty_witness_args: EMPTY_WITNESS_ARGS,
         local_delay_epoch: local_delay_epoch.as_u64(),
-        local_delay_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec()).unwrap(),
-        revocation_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(revocation_key.1.serialize())[0..20].to_vec()).unwrap(),
+        local_delay_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
+        revocation_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
         pending_htlc1: PendingHtlc {
             htlc_type: 0,
             payment_amount: payment_amount1,
             payment_hash: <[u8; 20]>::try_from(blake2b_256(preimage1)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry1.as_u64(),
         },
         pending_htlc2: PendingHtlc {
             htlc_type: 0b00000011,
             payment_amount: payment_amount2,
             payment_hash: <[u8; 20]>::try_from(Sha256::digest(preimage2)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry2.as_u64(),
         },
         unlock_type: 0x0,
@@ -1036,7 +1297,8 @@ fn test_preimage_offer_err() {
     let tx = ct.replace_output(tx, ct.alway_contract.clone(), None, &cell, 500, 0);
 
     // run
-    let err = ct.context
+    let err = ct
+        .context
         .verify_tx(&tx, 100000000)
         .expect_err("Error::PreimageError");
     println!("err:{:?}", err);
@@ -1049,7 +1311,6 @@ fn test_udt_output_capacity_err() {
     let commitment_lock_contract = ct.deploy_contract("commitment-lock");
     let auth_contract = ct.deploy_contract("auth");
     let udt_contract = ct.deploy_contract("simple_udt");
-
 
     // prepare script
     let mut generator = Generator::new();
@@ -1086,7 +1347,8 @@ fn test_udt_output_capacity_err() {
         blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
         blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
         expiry2.as_u64().to_le_bytes().to_vec(),
-    ].concat();
+    ]
+    .concat();
 
     let args = blake2b_256(&witness_script)[0..20].to_vec();
     let total_sudt_amount = 424242424242424242u128;
@@ -1099,8 +1361,13 @@ fn test_udt_output_capacity_err() {
         struct_flag: MoleculeStructFlag::default(),
     };
     let tx = TransactionBuilder::default().build();
-    let tx = ct.add_input(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc, 1000);
-
+    let tx = ct.add_input(
+        tx,
+        commitment_lock_contract.clone(),
+        Some(udt_contract.clone()),
+        &cc,
+        1000,
+    );
 
     let new_witness_script = [
         local_delay_epoch.as_u64().to_le_bytes().to_vec(),
@@ -1112,7 +1379,8 @@ fn test_udt_output_capacity_err() {
         blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
         blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
         expiry2.as_u64().to_le_bytes().to_vec(),
-    ].concat();
+    ]
+    .concat();
     let args = blake2b_256(&new_witness_script)[0..20].to_vec();
 
     let mut cc1 = CommitmentHTCL2WithPriImageAndUDTCell {
@@ -1126,7 +1394,13 @@ fn test_udt_output_capacity_err() {
     };
     // err: OutputCapacityError
     // let tx = ct.add_outpoint(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc1, 1000);
-    let tx = ct.add_outpoint(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc1, 999);
+    let tx = ct.add_outpoint(
+        tx,
+        commitment_lock_contract.clone(),
+        Some(udt_contract.clone()),
+        &cc1,
+        999,
+    );
     let tx = ct.add_contract_cell_dep(tx, &auth_contract);
     let tx = ct.context.complete_tx(tx);
 
@@ -1138,26 +1412,43 @@ fn test_udt_output_capacity_err() {
         .unwrap()
         .serialize();
 
-
     cc1.witness = Some(CommitmentPendinghtlc2WithPriImageWitness {
         empty_witness_args: EMPTY_WITNESS_ARGS,
         local_delay_epoch: local_delay_epoch.as_u64(),
-        local_delay_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec()).unwrap(),
-        revocation_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(revocation_key.1.serialize())[0..20].to_vec()).unwrap(),
+        local_delay_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
+        revocation_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
         pending_htlc1: PendingHtlc {
             htlc_type: 0b00000000,
             payment_amount: payment_amount1,
             payment_hash: <[u8; 20]>::try_from(blake2b_256(preimage1)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry1.as_u64(),
         },
         pending_htlc2: PendingHtlc {
             htlc_type: 0b00000001,
             payment_amount: payment_amount2,
             payment_hash: <[u8; 20]>::try_from(blake2b_256(preimage2)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry2.as_u64(),
         },
         unlock_type: 0x0,
@@ -1166,13 +1457,20 @@ fn test_udt_output_capacity_err() {
     });
     // err: OutputCapacityError
     // let tx = ct.add_outpoint(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc1, 1000);
-    let tx = ct.replace_output(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc1, 999, 0);
-
+    let tx = ct.replace_output(
+        tx,
+        commitment_lock_contract.clone(),
+        Some(udt_contract.clone()),
+        &cc1,
+        999,
+        0,
+    );
 
     println!("tx: {:?}", tx);
 
     // run
-    let err = ct.context
+    let err = ct
+        .context
         .verify_tx(&tx, 100000000)
         .expect_err("OutputCapacityError");
 
@@ -1180,14 +1478,12 @@ fn test_udt_output_capacity_err() {
     assert!(err.to_string().contains("code 13"))
 }
 
-
 #[test]
 fn test_output_capacity_err() {
     let mut ct = ContractUtil::new();
     let commitment_lock_contract = ct.deploy_contract("commitment-lock");
     let auth_contract = ct.deploy_contract("auth");
     let udt_contract = ct.deploy_contract("simple_udt");
-
 
     // prepare script
     let mut generator = Generator::new();
@@ -1224,7 +1520,8 @@ fn test_output_capacity_err() {
         blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
         blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
         expiry2.as_u64().to_le_bytes().to_vec(),
-    ].concat();
+    ]
+    .concat();
 
     let args = blake2b_256(&witness_script)[0..20].to_vec();
     let total_sudt_amount = 424242424242424242u128;
@@ -1239,7 +1536,6 @@ fn test_output_capacity_err() {
     let tx = TransactionBuilder::default().build();
     let tx = ct.add_input(tx, commitment_lock_contract.clone(), None, &cc, 1000);
 
-
     let new_witness_script = [
         local_delay_epoch.as_u64().to_le_bytes().to_vec(),
         blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
@@ -1250,7 +1546,8 @@ fn test_output_capacity_err() {
         blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
         blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
         expiry2.as_u64().to_le_bytes().to_vec(),
-    ].concat();
+    ]
+    .concat();
     let args = blake2b_256(&new_witness_script)[0..20].to_vec();
 
     let mut cc1 = CommitmentHTCL2WithPriImageAndUDTCell {
@@ -1276,26 +1573,43 @@ fn test_output_capacity_err() {
         .unwrap()
         .serialize();
 
-
     cc1.witness = Some(CommitmentPendinghtlc2WithPriImageWitness {
         empty_witness_args: EMPTY_WITNESS_ARGS,
         local_delay_epoch: local_delay_epoch.as_u64(),
-        local_delay_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec()).unwrap(),
-        revocation_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(revocation_key.1.serialize())[0..20].to_vec()).unwrap(),
+        local_delay_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
+        revocation_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
         pending_htlc1: PendingHtlc {
             htlc_type: 0b00000000,
             payment_amount: payment_amount1,
             payment_hash: <[u8; 20]>::try_from(blake2b_256(preimage1)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry1.as_u64(),
         },
         pending_htlc2: PendingHtlc {
             htlc_type: 0b00000001,
             payment_amount: payment_amount2,
             payment_hash: <[u8; 20]>::try_from(blake2b_256(preimage2)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry2.as_u64(),
         },
         unlock_type: 0x0,
@@ -1306,11 +1620,11 @@ fn test_output_capacity_err() {
     // let tx = ct.add_outpoint(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc1, 1000);
     let tx = ct.replace_output(tx, commitment_lock_contract.clone(), None, &cc1, 999, 0);
 
-
     println!("tx: {:?}", tx);
 
     // run
-    let err = ct.context
+    let err = ct
+        .context
         .verify_tx(&tx, 100000000)
         .expect_err("OutputCapacityError");
 
@@ -1324,7 +1638,6 @@ fn test_output_capacity_overflow() {
     let commitment_lock_contract = ct.deploy_contract("commitment-lock");
     let auth_contract = ct.deploy_contract("auth");
     let udt_contract = ct.deploy_contract("simple_udt");
-
 
     // prepare script
     let mut generator = Generator::new();
@@ -1362,7 +1675,8 @@ fn test_output_capacity_overflow() {
         blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
         blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
         expiry2.as_u64().to_le_bytes().to_vec(),
-    ].concat();
+    ]
+    .concat();
 
     let args = blake2b_256(&witness_script)[0..20].to_vec();
     let total_sudt_amount = 424242424242424242u128;
@@ -1377,7 +1691,6 @@ fn test_output_capacity_overflow() {
     let tx = TransactionBuilder::default().build();
     let tx = ct.add_input(tx, commitment_lock_contract.clone(), None, &cc, 1000);
 
-
     let new_witness_script = [
         local_delay_epoch.as_u64().to_le_bytes().to_vec(),
         blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
@@ -1388,7 +1701,8 @@ fn test_output_capacity_overflow() {
         blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
         blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
         expiry2.as_u64().to_le_bytes().to_vec(),
-    ].concat();
+    ]
+    .concat();
     let args = blake2b_256(&new_witness_script)[0..20].to_vec();
 
     let mut cc1 = CommitmentHTCL2WithPriImageAndUDTCell {
@@ -1414,26 +1728,43 @@ fn test_output_capacity_overflow() {
         .unwrap()
         .serialize();
 
-
     cc1.witness = Some(CommitmentPendinghtlc2WithPriImageWitness {
         empty_witness_args: EMPTY_WITNESS_ARGS,
         local_delay_epoch: local_delay_epoch.as_u64(),
-        local_delay_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec()).unwrap(),
-        revocation_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(revocation_key.1.serialize())[0..20].to_vec()).unwrap(),
+        local_delay_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
+        revocation_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
         pending_htlc1: PendingHtlc {
             htlc_type: 0b00000000,
             payment_amount: payment_amount1,
             payment_hash: <[u8; 20]>::try_from(blake2b_256(preimage1)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key1.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry1.as_u64(),
         },
         pending_htlc2: PendingHtlc {
             htlc_type: 0b00000001,
             payment_amount: payment_amount2,
             payment_hash: <[u8; 20]>::try_from(blake2b_256(preimage2)[0..20].to_vec()).unwrap(),
-            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
-            local_htlc_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec()).unwrap(),
+            remote_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(remote_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
+            local_htlc_pubkey_hash: <[u8; 20]>::try_from(
+                blake2b_256(local_htlc_key2.1.serialize())[0..20].to_vec(),
+            )
+            .unwrap(),
             htlc_expiry: expiry2.as_u64(),
         },
         unlock_type: 0x0,
@@ -1444,11 +1775,11 @@ fn test_output_capacity_overflow() {
     // let tx = ct.add_outpoint(tx, commitment_lock_contract.clone(), Some(udt_contract.clone()), &cc1, 1000);
     let tx = ct.replace_output(tx, commitment_lock_contract.clone(), None, &cc1, 999, 0);
 
-
     println!("tx: {:?}", tx);
 
     // run
-    let err = ct.context
+    let err = ct
+        .context
         .verify_tx(&tx, 100000000)
         .expect_err("subtract with overflow");
 
@@ -1473,14 +1804,21 @@ fn test_auth_err() {
         local_delay_epoch.as_u64().to_le_bytes().to_vec(),
         blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
         blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
-    ].concat();
+    ]
+    .concat();
 
     let args = blake2b_256(&witness_script)[0..20].to_vec();
 
     let mut commitment_cell = CommitmentCellNoHtlcAndPreImage::default();
     commitment_cell.lock_arg = <[u8; 20]>::try_from(args).unwrap();
     let mut tx = TransactionBuilder::default().build();
-    tx = ct.add_input(tx, commitment_contract.clone(), None, &commitment_cell, 1000);
+    tx = ct.add_input(
+        tx,
+        commitment_contract.clone(),
+        None,
+        &commitment_cell,
+        1000,
+    );
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &commitment_cell, 500);
     let tx = ct.context.complete_tx(tx);
@@ -1498,18 +1836,30 @@ fn test_auth_err() {
     commitment_cell.witness = Some(CommitmentWitnessNoHtlcAndPreImage {
         empty_witness_args: EMPTY_WITNESS_ARGS,
         local_delay_epoch: local_delay_epoch.as_u64(),
-        local_delay_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec()).unwrap(),
-        revocation_pubkey_hash: <[u8; 20]>::try_from(blake2b_256(revocation_key.1.serialize())[0..20].to_vec()).unwrap(),
+        local_delay_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(local_delay_epoch_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
+        revocation_pubkey_hash: <[u8; 20]>::try_from(
+            blake2b_256(revocation_key.1.serialize())[0..20].to_vec(),
+        )
+        .unwrap(),
         unlock_type: 255,
         signature: [1; 65],
     });
-    let tx = ct.replace_output(tx, ct.alway_contract.clone(), None, &commitment_cell, 500, 0);
+    let tx = ct.replace_output(
+        tx,
+        ct.alway_contract.clone(),
+        None,
+        &commitment_cell,
+        500,
+        0,
+    );
 
     println!("tx: {:?}", tx);
 
     // run
-    match ct.context
-        .verify_tx(&tx, 100000000) {
+    match ct.context.verify_tx(&tx, 100000000) {
         Ok(_) => {
             assert!(false)
         }

@@ -1,0 +1,9 @@
+/Users/xueyanli/vscode/ckb-contract-tests/target/debug/deps/libckb_vm_definitions-876e127aad455f57.rmeta: /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-vm-definitions-0.24.12/src/lib.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-vm-definitions-0.24.12/src/asm.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-vm-definitions-0.24.12/src/instructions.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-vm-definitions-0.24.12/src/memory.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-vm-definitions-0.24.12/src/registers.rs
+
+/Users/xueyanli/vscode/ckb-contract-tests/target/debug/deps/ckb_vm_definitions-876e127aad455f57.d: /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-vm-definitions-0.24.12/src/lib.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-vm-definitions-0.24.12/src/asm.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-vm-definitions-0.24.12/src/instructions.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-vm-definitions-0.24.12/src/memory.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-vm-definitions-0.24.12/src/registers.rs
+
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-vm-definitions-0.24.12/src/lib.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-vm-definitions-0.24.12/src/asm.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-vm-definitions-0.24.12/src/instructions.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-vm-definitions-0.24.12/src/memory.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-vm-definitions-0.24.12/src/registers.rs:

@@ -1,0 +1,11 @@
+/Users/xueyanli/vscode/ckb-contract-tests/target/debug/deps/libckb_error-fafc9ecaf7457d0b.rmeta: /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/lib.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/convert.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/internal.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/prelude.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/util.rs
+
+/Users/xueyanli/vscode/ckb-contract-tests/target/debug/deps/libckb_error-fafc9ecaf7457d0b.rlib: /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/lib.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/convert.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/internal.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/prelude.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/util.rs
+
+/Users/xueyanli/vscode/ckb-contract-tests/target/debug/deps/ckb_error-fafc9ecaf7457d0b.d: /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/lib.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/convert.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/internal.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/prelude.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/util.rs
+
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/lib.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/convert.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/internal.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/prelude.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-error-0.119.0/src/util.rs:

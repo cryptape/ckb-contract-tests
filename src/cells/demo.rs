@@ -30,7 +30,4 @@ impl Demo {
     }
 }
 
-
-
-
 impl_cell_methods!(Demo);

@@ -1,9 +1,8 @@
 use crate::cell_message::cell::MoleculeStructFlag;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use crate::impl_cell_methods;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-#[derive(PartialEq)]
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub struct XUDTDataCell {
     pub lock_arg: u8,
     pub type_arg: Option<[u8; 32]>,
@@ -11,8 +10,6 @@ pub struct XUDTDataCell {
     pub witness: Option<XUDTWitness>,
     pub struct_flag: MoleculeStructFlag,
 }
-
-
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct XUDTData {
@@ -47,7 +44,7 @@ impl XUDTDataCell {
             type_arg: Some(type_arg),
             data: data,
             witness: Some(XUDTWitness {
-                empty_witness_args: EMPTY_WITNESS_ARGS
+                empty_witness_args: EMPTY_WITNESS_ARGS,
             }),
             struct_flag: MoleculeStructFlag {
                 lock_arg: true,
@@ -58,6 +55,5 @@ impl XUDTDataCell {
         };
     }
 }
-
 
 impl_cell_methods!(XUDTDataCell);

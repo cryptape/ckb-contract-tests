@@ -7,7 +7,12 @@ pub trait Cell {
     fn get_data(&self) -> Vec<u8>;
     fn get_witness(&self) -> Option<Vec<u8>>;
 
-    fn from_arg(lock_arg: Vec<u8>, type_arg: Option<Vec<u8>>, data1: Vec<u8>, witness_args: Option<Vec<u8>>) -> Self
+    fn from_arg(
+        lock_arg: Vec<u8>,
+        type_arg: Option<Vec<u8>>,
+        data1: Vec<u8>,
+        witness_args: Option<Vec<u8>>,
+    ) -> Self
     where
         Self: Sized;
 }

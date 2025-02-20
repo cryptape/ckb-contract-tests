@@ -1,10 +1,10 @@
+use crate::cell_message::cell::MoleculeStructFlag;
+use crate::prelude::ContextExt;
+use crate::tests::input_type_proxy_lock::ITPLArgErrCell;
+use crate::{impl_cell_methods, impl_cell_methods_without_import, ContractUtil};
 use ckb_testtool::ckb_hash::blake2b_256;
 use ckb_testtool::ckb_types::core::TransactionBuilder;
 use ckb_testtool::ckb_types::prelude::Entity;
-use crate::cell_message::cell::MoleculeStructFlag;
-use crate::{ContractUtil, impl_cell_methods, impl_cell_methods_without_import};
-use crate::prelude::ContextExt;
-use crate::tests::input_type_proxy_lock::ITPLArgErrCell;
 
 #[derive(Default, Clone)]
 pub struct OTPLCell {
@@ -36,13 +36,21 @@ fn test_1_to_0_arg_too_low_err_encoding() {
     let input_type_proxy_contract = ct.deploy_contract("output-type-proxy-lock");
     let tx = TransactionBuilder::default().build();
     let input_cell = OTPLArgErrCell::default();
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 1000);
     let tx = ct.context.complete_tx(tx);
-    let ret = ct.context.should_be_failed(&tx, 1000000).expect_err("Encoding");
+    let ret = ct
+        .context
+        .should_be_failed(&tx, 1000000)
+        .expect_err("Encoding");
     assert!(ret.to_string().contains("code 4"))
 }
-
 
 /// 1->0
 ///
@@ -55,13 +63,21 @@ fn test_1_to_0_output_type_is_empty() {
     let input_type_proxy_contract = ct.deploy_contract("output-type-proxy-lock");
     let tx = TransactionBuilder::default().build();
     let input_cell = OTPLCell::default();
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 1000);
     let tx = ct.context.complete_tx(tx);
-    let ret = ct.context.should_be_failed(&tx, 1000000).expect_err("Encoding");
+    let ret = ct
+        .context
+        .should_be_failed(&tx, 1000000)
+        .expect_err("Encoding");
     assert!(ret.to_string().contains("code 6"))
 }
-
 
 /// 1->0
 ///
@@ -83,11 +99,30 @@ fn test_1_to_0_output_type_is_eq() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &output_cell, 1000);
+    let tx = ct.add_outpoint(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &output_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &output_cell, 1000);
     let mut input_cell = OTPLCell::default();
-    input_cell.lock_arg = blake2b_256(tx.output(0).expect("").type_().to_opt().expect("type exit").as_slice());
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
+    input_cell.lock_arg = blake2b_256(
+        tx.output(0)
+            .expect("")
+            .type_()
+            .to_opt()
+            .expect("type exit")
+            .as_slice(),
+    );
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
     let tx = ct.context.complete_tx(tx);
     ct.context.should_be_passed(&tx, 1000000).expect("pass");
 }
@@ -112,17 +147,41 @@ fn test_1_to_0_output_type_is_eq_at_index_3() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &output_cell, 1000);
+    let tx = ct.add_outpoint(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &output_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &output_cell, 1000);
-    let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &output_cell, 1000);
+    let tx = ct.add_outpoint(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &output_cell,
+        1000,
+    );
     output_cell.type_arg = Some(2);
     let mut input_cell = OTPLCell::default();
-    input_cell.lock_arg = blake2b_256(tx.output(2).expect("").type_().to_opt().expect("type exit").as_slice());
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 3000);
+    input_cell.lock_arg = blake2b_256(
+        tx.output(2)
+            .expect("")
+            .type_()
+            .to_opt()
+            .expect("type exit")
+            .as_slice(),
+    );
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        3000,
+    );
     let tx = ct.context.complete_tx(tx);
     ct.context.should_be_passed(&tx, 1000000).expect("pass");
 }
-
 
 /// 1->0
 ///
@@ -144,18 +203,35 @@ fn test_1_to_0_output_type_not_eq() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &output_cell, 1000);
+    let tx = ct.add_outpoint(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &output_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &output_cell, 1000);
-    let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &output_cell, 1000);
+    let tx = ct.add_outpoint(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &output_cell,
+        1000,
+    );
     output_cell.type_arg = Some(2);
     let input_cell = OTPLCell::default();
     // input_cell.lock_arg = blake2b_256(tx.output(2).expect("").type_().to_opt().expect("type exit").as_slice());
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 3000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        3000,
+    );
     let tx = ct.context.complete_tx(tx);
     let ret = ct.context.should_be_failed(&tx, 1000000).expect_err("pass");
     assert!(ret.to_string().contains("code 6"))
 }
-
 
 /// 2->0
 ///
@@ -177,15 +253,45 @@ fn test_2_to_0_output_type_eq() {
         witness: None,
         struct_flag: Default::default(),
     };
-    let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &output_cell, 1000);
+    let tx = ct.add_outpoint(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &output_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &output_cell, 1000);
-    let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), Some(ct.alway_contract.clone()), &output_cell, 1000);
+    let tx = ct.add_outpoint(
+        tx,
+        ct.alway_contract.clone(),
+        Some(ct.alway_contract.clone()),
+        &output_cell,
+        1000,
+    );
     output_cell.type_arg = Some(2);
     let mut input_cell = OTPLCell::default();
-    input_cell.lock_arg = blake2b_256(tx.output(2).expect("").type_().to_opt().expect("type exit").as_slice());
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 3000);
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 3000);
+    input_cell.lock_arg = blake2b_256(
+        tx.output(2)
+            .expect("")
+            .type_()
+            .to_opt()
+            .expect("type exit")
+            .as_slice(),
+    );
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        3000,
+    );
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        3000,
+    );
     let tx = ct.context.complete_tx(tx);
     ct.context.should_be_passed(&tx, 1000000).expect("pass");
 }
-

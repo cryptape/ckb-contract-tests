@@ -1,11 +1,11 @@
-use std::default::Default;
+use crate::cell_message::cell::MoleculeStructFlag;
+use crate::cells::demo::Demo;
+use crate::prelude::ContextExt;
+use crate::{impl_cell_methods, impl_cell_methods_without_import, ContractUtil};
 use ckb_testtool::ckb_jsonrpc_types::{Deserialize, Serialize};
 use ckb_testtool::ckb_types::core::TransactionBuilder;
 use ckb_testtool::ckb_types::prelude::{Entity, Unpack};
-use crate::cell_message::cell::MoleculeStructFlag;
-use crate::{ContractUtil, impl_cell_methods, impl_cell_methods_without_import};
-use crate::cells::demo::Demo;
-use crate::prelude::ContextExt;
+use std::default::Default;
 
 #[derive(Default, Clone)]
 pub struct SULArgErrCell {
@@ -42,13 +42,21 @@ fn test_1_to_0_arg_too_low_err_encoding() {
     let input_type_proxy_contract = ct.deploy_contract("single-use-lock");
     let tx = TransactionBuilder::default().build();
     let input_cell = SULArgErrCell::default();
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 1000);
     let tx = ct.context.complete_tx(tx);
-    let ret = ct.context.should_be_failed(&tx, 1000000).expect_err("Encoding");
+    let ret = ct
+        .context
+        .should_be_failed(&tx, 1000000)
+        .expect_err("Encoding");
     assert!(ret.to_string().contains("code 4"))
 }
-
 
 /// 1->0
 ///
@@ -75,7 +83,13 @@ fn test_1_to_0_exist_arg_eq_output() {
         struct_flag: Default::default(),
     };
 
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 1000);
     let tx = ct.context.complete_tx(tx);
     ct.context.should_be_passed(&tx, 1000000).expect("pass");
@@ -107,13 +121,21 @@ fn test_1_to_0_arg_not_eq_output() {
         struct_flag: Default::default(),
     };
 
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 1000);
     let tx = ct.context.complete_tx(tx);
-    let ret = ct.context.should_be_failed(&tx, 1000000).expect_err("OutpointNotFound");
+    let ret = ct
+        .context
+        .should_be_failed(&tx, 1000000)
+        .expect_err("OutpointNotFound");
     assert!(ret.to_string().contains("code 7"))
 }
-
 
 /// 2->0
 ///
@@ -141,13 +163,24 @@ fn test_2_to_0_exist_arg_eq_output() {
         struct_flag: Default::default(),
     };
 
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 1000);
     let tx = ct.context.complete_tx(tx);
     ct.context.should_be_passed(&tx, 1000000).expect("pass");
 }
-
 
 /// 2->0
 ///
@@ -169,17 +202,32 @@ fn test_2_to_0_arg_not_eq_output() {
         //     tx_hash: output.tx_hash().as_slice().try_into().unwrap(),
         //     index: output.index().unpack(),
         // },
-        lock_arg:Default::default(),
+        lock_arg: Default::default(),
         type_arg: None,
         data: 0,
         witness: None,
         struct_flag: Default::default(),
     };
 
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
-    let tx = ct.add_input(tx, input_type_proxy_contract.clone(), None, &input_cell, 1000);
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
+    let tx = ct.add_input(
+        tx,
+        input_type_proxy_contract.clone(),
+        None,
+        &input_cell,
+        1000,
+    );
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 1000);
     let tx = ct.context.complete_tx(tx);
-    let ret = ct.context.should_be_failed(&tx, 1000000).expect_err("OutpointNotFound");
+    let ret = ct
+        .context
+        .should_be_failed(&tx, 1000000)
+        .expect_err("OutpointNotFound");
     assert!(ret.to_string().contains("code 7"))
 }

@@ -1,0 +1,10 @@
+/Users/xueyanli/vscode/ckb-contract-tests/target/debug/deps/libhex_conservative-6d77cab2f3752092.rmeta: /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/lib.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/buf_encoder.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/display.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/error.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/iter.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/parse.rs
+
+/Users/xueyanli/vscode/ckb-contract-tests/target/debug/deps/hex_conservative-6d77cab2f3752092.d: /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/lib.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/buf_encoder.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/display.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/error.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/iter.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/parse.rs
+
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/lib.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/buf_encoder.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/display.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/error.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/iter.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hex-conservative-0.1.2/src/parse.rs:

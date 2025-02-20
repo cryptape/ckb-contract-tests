@@ -1,11 +1,10 @@
+use crate::cells::xudt_data::{XUDTData, XUDTDataCell};
+use crate::ContractUtil;
 use ckb_testtool::ckb_types::core::{TransactionBuilder, TransactionView};
 use ckb_testtool::ckb_types::packed::Transaction;
 use ckb_testtool::ckb_types::prelude::{AsTransactionBuilder, Builder, Entity};
-use crate::cells::xudt_data::{XUDTData, XUDTDataCell};
-use crate::{ContractUtil};
 
 use crate::prelude::ContextExt;
-
 
 #[test]
 fn test_transfer_successful() {
@@ -19,12 +18,35 @@ fn test_transfer_successful() {
     let type_contract = ct.deploy_contract("XUDT");
     let mut tx = TransactionBuilder::default().build();
 
-    tx = ct.add_input(tx, ct.alway_contract.clone(), Some(type_contract.clone()), &input_token_cell, 100);
-    tx = ct.add_input(tx, ct.alway_contract.clone(), Some(type_contract.clone()), &input_token2_cell, 100);
+    tx = ct.add_input(
+        tx,
+        ct.alway_contract.clone(),
+        Some(type_contract.clone()),
+        &input_token_cell,
+        100,
+    );
+    tx = ct.add_input(
+        tx,
+        ct.alway_contract.clone(),
+        Some(type_contract.clone()),
+        &input_token2_cell,
+        100,
+    );
 
-    tx = ct.add_outpoint(tx, ct.alway_contract.clone(), Some(type_contract.clone()), &output_token1_cell, 100);
-    tx = ct.add_outpoint(tx, ct.alway_contract.clone(), Some(type_contract.clone()), &output_token2_cell, 100);
-
+    tx = ct.add_outpoint(
+        tx,
+        ct.alway_contract.clone(),
+        Some(type_contract.clone()),
+        &output_token1_cell,
+        100,
+    );
+    tx = ct.add_outpoint(
+        tx,
+        ct.alway_contract.clone(),
+        Some(type_contract.clone()),
+        &output_token2_cell,
+        100,
+    );
 
     tx = ct.context.complete_tx(tx);
     let ret1 = ct.context.should_be_passed(&tx, 1000000);

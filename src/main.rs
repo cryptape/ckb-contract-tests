@@ -1,5 +1,7 @@
 extern crate core;
 
+use ckb_std::ckb_types::core::ScriptHashType;
+use ckb_std::ckb_types::packed::Script;
 use ckb_testtool::{
     ckb_error::Error,
     ckb_types::{
@@ -12,20 +14,20 @@ use std::env;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
-use ckb_std::ckb_types::core::ScriptHashType;
-use ckb_std::ckb_types::packed::Script;
 
-use ckb_testtool::ckb_types::packed::{CellDep, CellInput, CellOutput, CellOutputBuilder, OutPoint, ScriptOptBuilder};
-use ckb_testtool::ckb_types::prelude::{Builder, Entity, Pack, Unpack};
-use serde_molecule::from_slice;
 use crate::cell_message::cell::Cell;
 use crate::prelude::ContextExt;
+use ckb_testtool::ckb_types::packed::{
+    CellDep, CellInput, CellOutput, CellOutputBuilder, OutPoint, ScriptOptBuilder,
+};
+use ckb_testtool::ckb_types::prelude::{Builder, Entity, Pack, Unpack};
+use serde_molecule::from_slice;
 
+mod cell_message;
+mod cells;
+mod tests;
 #[cfg(test)]
 pub(crate) mod utilities;
-mod tests;
-mod cells;
-mod cell_message;
 
 pub mod prelude {
     use ckb_testtool::{
@@ -156,12 +158,10 @@ impl prelude::ContextExt for Context {
     }
 }
 
-
 pub struct ContractUtil {
     pub loader: Loader,
     pub context: Context,
     pub alway_contract: OutPoint,
-
 }
 
 impl ContractUtil {
@@ -184,86 +184,135 @@ impl ContractUtil {
         self.context.deploy_cell(stack_reorder_bin)
     }
 
-
     ///
     /// create input cell, add input cell to tx
-    pub fn add_input(&mut self, tx_builder: TransactionView, lock_contract: OutPoint, type_contract: Option<OutPoint>, cell_tx: &dyn Cell, redundant_cap: usize) -> TransactionView {
-        let cell_output = self.get_celloutput_builder(&lock_contract, &type_contract, cell_tx, redundant_cap);
+    pub fn add_input(
+        &mut self,
+        tx_builder: TransactionView,
+        lock_contract: OutPoint,
+        type_contract: Option<OutPoint>,
+        cell_tx: &dyn Cell,
+        redundant_cap: usize,
+    ) -> TransactionView {
+        let cell_output =
+            self.get_celloutput_builder(&lock_contract, &type_contract, cell_tx, redundant_cap);
 
         // data
-        let out_point1 = self.context.create_cell(cell_output.build(), cell_tx.get_data().into());
-        let input = CellInput::new_builder()
-            .previous_output(out_point1).build();
-        tx_builder.as_advanced_builder()
-            .input(input).build()
+        let out_point1 = self
+            .context
+            .create_cell(cell_output.build(), cell_tx.get_data().into());
+        let input = CellInput::new_builder().previous_output(out_point1).build();
+        tx_builder.as_advanced_builder().input(input).build()
     }
 
-    pub fn add_input_with_since(&mut self, tx_builder: TransactionView, lock_contract: OutPoint, type_contract: Option<OutPoint>, cell_tx: &dyn Cell, since: u64, redundant_cap: usize) -> TransactionView {
-        let cell_output = self.get_celloutput_builder(&lock_contract, &type_contract, cell_tx, redundant_cap);
+    pub fn add_input_with_since(
+        &mut self,
+        tx_builder: TransactionView,
+        lock_contract: OutPoint,
+        type_contract: Option<OutPoint>,
+        cell_tx: &dyn Cell,
+        since: u64,
+        redundant_cap: usize,
+    ) -> TransactionView {
+        let cell_output =
+            self.get_celloutput_builder(&lock_contract, &type_contract, cell_tx, redundant_cap);
 
         // data
-        let out_point1 = self.context.create_cell(cell_output.build(), cell_tx.get_data().into());
+        let out_point1 = self
+            .context
+            .create_cell(cell_output.build(), cell_tx.get_data().into());
         let input = CellInput::new_builder()
             .since(since.pack())
-            .previous_output(out_point1).build();
-        tx_builder.as_advanced_builder()
-            .input(input).build()
+            .previous_output(out_point1)
+            .build();
+        tx_builder.as_advanced_builder().input(input).build()
     }
 
     pub fn create_tx_cells(&mut self, tx_build: TransactionView) {
-        self.context.should_be_passed(&tx_build, 10_000_000).unwrap();
-        tx_build.outputs_with_data_iter()
-            .for_each(|(cell, data)|
-            {
-                self.context.create_cell(cell, data);
-            }
-            )
+        self.context
+            .should_be_passed(&tx_build, 10_000_000)
+            .unwrap();
+        tx_build.outputs_with_data_iter().for_each(|(cell, data)| {
+            self.context.create_cell(cell, data);
+        })
     }
 
-
-    pub fn create_cell_input_by_cell(&mut self, lock_contract: OutPoint, type_contract: Option<OutPoint>, cell_tx: &dyn Cell, redundant_cap: usize) -> CellInput {
-        let cell_output = self.get_celloutput_builder(&lock_contract, &type_contract, cell_tx, redundant_cap);
+    pub fn create_cell_input_by_cell(
+        &mut self,
+        lock_contract: OutPoint,
+        type_contract: Option<OutPoint>,
+        cell_tx: &dyn Cell,
+        redundant_cap: usize,
+    ) -> CellInput {
+        let cell_output =
+            self.get_celloutput_builder(&lock_contract, &type_contract, cell_tx, redundant_cap);
 
         // data
-        let out_point1 = self.context.create_cell(cell_output.build(), cell_tx.get_data().into());
+        let out_point1 = self
+            .context
+            .create_cell(cell_output.build(), cell_tx.get_data().into());
         CellInput::new_builder().previous_output(out_point1).build()
     }
 
-    pub fn add_outpoint(&mut self, tx_builder: TransactionView, lock_contract: OutPoint, type_contract: Option<OutPoint>, cell_tx: &dyn Cell, redundant_cap: usize) -> TransactionView {
-        let cell_output = self.get_celloutput_builder(&lock_contract, &type_contract, cell_tx, redundant_cap);
+    pub fn add_outpoint(
+        &mut self,
+        tx_builder: TransactionView,
+        lock_contract: OutPoint,
+        type_contract: Option<OutPoint>,
+        cell_tx: &dyn Cell,
+        redundant_cap: usize,
+    ) -> TransactionView {
+        let cell_output =
+            self.get_celloutput_builder(&lock_contract, &type_contract, cell_tx, redundant_cap);
 
         let witness = match cell_tx.get_witness() {
             None => {
                 // BytesBuilder::default().build()
                 Bytes::from(vec![])
             }
-            Some(witness) => {
-                Bytes::from(witness)
-            }
+            Some(witness) => Bytes::from(witness),
         };
 
         return tx_builder
             .as_advanced_builder()
             .output(cell_output.build().clone())
             .output_data(Bytes::from(cell_tx.get_data()).pack())
-            .witness(Pack::pack(&witness)).build();
+            .witness(Pack::pack(&witness))
+            .build();
     }
 
-    pub fn get_celloutput_builder(&mut self, lock_contract: &OutPoint, type_contract: &Option<OutPoint>, cell_tx: &dyn Cell, redundant_cap: usize) -> CellOutputBuilder {
-
-
+    pub fn get_celloutput_builder(
+        &mut self,
+        lock_contract: &OutPoint,
+        type_contract: &Option<OutPoint>,
+        cell_tx: &dyn Cell,
+        redundant_cap: usize,
+    ) -> CellOutputBuilder {
         // lock script
-        let lock_script = self.context.build_script_with_hash_type(&lock_contract, DEFAULT_TYPE, cell_tx.get_lock_arg().into()).unwrap();
+        let lock_script = self
+            .context
+            .build_script_with_hash_type(
+                &lock_contract,
+                DEFAULT_TYPE,
+                cell_tx.get_lock_arg().into(),
+            )
+            .unwrap();
 
         let mut cell_output = {
-            let mut cell_output = CellOutputBuilder::default()
-                .lock(lock_script);
+            let mut cell_output = CellOutputBuilder::default().lock(lock_script);
             match type_contract {
                 None => {}
                 Some(contract) => {
-                    let script = self.context.build_script_with_hash_type(&contract, DEFAULT_TYPE, cell_tx.get_type_arg().unwrap().into()).unwrap();
-                    cell_output = cell_output.type_(ScriptOptBuilder::default()
-                        .set(Some(script)).build());
+                    let script = self
+                        .context
+                        .build_script_with_hash_type(
+                            &contract,
+                            DEFAULT_TYPE,
+                            cell_tx.get_type_arg().unwrap().into(),
+                        )
+                        .unwrap();
+                    cell_output =
+                        cell_output.type_(ScriptOptBuilder::default().set(Some(script)).build());
                 }
             }
             cell_output
@@ -277,9 +326,17 @@ impl ContractUtil {
         // );
     }
 
-
-    pub fn replace_output(&mut self, tx_builder: TransactionView, lock_contract: OutPoint, type_contract: Option<OutPoint>, cell_tx: &dyn Cell, redundant_cap: usize, replace_index: usize) -> TransactionView {
-        let cell_output = self.get_celloutput_builder(&lock_contract, &type_contract, cell_tx, redundant_cap);
+    pub fn replace_output(
+        &mut self,
+        tx_builder: TransactionView,
+        lock_contract: OutPoint,
+        type_contract: Option<OutPoint>,
+        cell_tx: &dyn Cell,
+        redundant_cap: usize,
+        replace_index: usize,
+    ) -> TransactionView {
+        let cell_output =
+            self.get_celloutput_builder(&lock_contract, &type_contract, cell_tx, redundant_cap);
 
         let witness = match cell_tx.get_witness() {
             None => {
@@ -292,10 +349,10 @@ impl ContractUtil {
             }
         };
 
-
         let data = Bytes::from(cell_tx.get_data());
 
-        let mut output_cells: Vec<CellOutput> = tx_builder.outputs_with_data_iter()
+        let mut output_cells: Vec<CellOutput> = tx_builder
+            .outputs_with_data_iter()
             .map(|(cell, data)| cell)
             .collect();
         if let Some(old_element) = output_cells.get_mut(replace_index) {
@@ -304,7 +361,6 @@ impl ContractUtil {
             println!("Index {} is out of bounds", replace_index);
             return tx_builder;
         }
-
 
         // output_cells.push(output_cells.first().unwrap().clone());
         let mut output_data = tx_builder.data().raw().outputs_data().unpack();
@@ -325,7 +381,8 @@ impl ContractUtil {
             // return tx_builder;
         }
 
-        tx_builder.as_advanced_builder()
+        tx_builder
+            .as_advanced_builder()
             .set_outputs_data(vec![])
             .outputs_data(output_data.pack())
             .set_outputs(vec![])
@@ -335,21 +392,40 @@ impl ContractUtil {
             .build()
     }
 
-    pub fn set_output(&mut self, tx_builder: TransactionView, lock_contract: OutPoint, type_contract: Option<OutPoint>, cell_tx: &dyn Cell, redundant_cap: usize, set_index: usize) -> TransactionView {
-
-
+    pub fn set_output(
+        &mut self,
+        tx_builder: TransactionView,
+        lock_contract: OutPoint,
+        type_contract: Option<OutPoint>,
+        cell_tx: &dyn Cell,
+        redundant_cap: usize,
+        set_index: usize,
+    ) -> TransactionView {
         // lock script
-        let lock_script = self.context.build_script_with_hash_type(&lock_contract, ScriptHashType::Data1, cell_tx.get_lock_arg().into()).unwrap();
+        let lock_script = self
+            .context
+            .build_script_with_hash_type(
+                &lock_contract,
+                ScriptHashType::Data1,
+                cell_tx.get_lock_arg().into(),
+            )
+            .unwrap();
 
         let mut cell_output = {
-            let mut cell_output = CellOutputBuilder::default()
-                .lock(lock_script);
+            let mut cell_output = CellOutputBuilder::default().lock(lock_script);
             match type_contract {
                 None => {}
                 Some(contract) => {
-                    let script = self.context.build_script_with_hash_type(&contract,DEFAULT_TYPE, cell_tx.get_type_arg().unwrap().into()).unwrap();
-                    cell_output = cell_output.type_(ScriptOptBuilder::default()
-                        .set(Some(script)).build());
+                    let script = self
+                        .context
+                        .build_script_with_hash_type(
+                            &contract,
+                            DEFAULT_TYPE,
+                            cell_tx.get_type_arg().unwrap().into(),
+                        )
+                        .unwrap();
+                    cell_output =
+                        cell_output.type_(ScriptOptBuilder::default().set(Some(script)).build());
                 }
             }
             cell_output
@@ -367,27 +443,24 @@ impl ContractUtil {
                 // BytesBuilder::default().build()
                 Bytes::from(vec![])
             }
-            Some(witness) => {
-                Bytes::from(witness)
-            }
+            Some(witness) => Bytes::from(witness),
         };
-
 
         let data = Bytes::from(cell_tx.get_data());
 
-
-        let mut output_cells: Vec<CellOutput> = tx_builder.outputs_with_data_iter()
+        let mut output_cells: Vec<CellOutput> = tx_builder
+            .outputs_with_data_iter()
             .map(|(cell, data)| cell)
             .collect();
         output_cells.insert(set_index, cell_output.build());
-
 
         let mut output_data = tx_builder.data().raw().outputs_data().unpack();
         output_data.insert(set_index, data);
 
         let mut witnessVec = tx_builder.data().witnesses().unpack();
         witnessVec.insert(set_index, witness);
-        tx_builder.as_advanced_builder()
+        tx_builder
+            .as_advanced_builder()
             .set_outputs_data(vec![])
             .outputs_data(output_data.pack())
             .set_outputs(vec![])
@@ -405,26 +478,28 @@ impl ContractUtil {
         let cell = cells.get(index).unwrap();
         let lock_args = cell.lock().args().unpack();
         let type_args = match cell.type_().to_opt() {
-            None => {
-                None
-            }
-            Some(script) => { Some(script.args().unpack()) }
+            None => None,
+            Some(script) => Some(script.args().unpack()),
         };
         // data
         let data = tx_builder.data().raw().outputs_data();
         let data = data.get(index).unwrap().unpack();
         // witness input
         let witness_args_raw_data = match tx_builder.data().witnesses().get(index) {
-            None => {
-                None
-            }
-            Some(witness) => { Some(witness.unpack()) }
+            None => None,
+            Some(witness) => Some(witness.unpack()),
         };
         T::from_arg(lock_args, type_args, data, witness_args_raw_data)
     }
 
-    pub fn add_contract_cell_dep(&self, tx_builder: TransactionView, contract: &OutPoint) -> TransactionView {
-        return tx_builder.as_advanced_builder().cell_dep(CellDep::new_builder().out_point(contract.clone()).build()
-        ).build();
+    pub fn add_contract_cell_dep(
+        &self,
+        tx_builder: TransactionView,
+        contract: &OutPoint,
+    ) -> TransactionView {
+        return tx_builder
+            .as_advanced_builder()
+            .cell_dep(CellDep::new_builder().out_point(contract.clone()).build())
+            .build();
     }
 }

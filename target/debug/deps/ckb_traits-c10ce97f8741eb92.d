@@ -1,0 +1,9 @@
+/Users/xueyanli/vscode/ckb-contract-tests/target/debug/deps/libckb_traits-c10ce97f8741eb92.rmeta: /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-traits-0.119.0/src/lib.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-traits-0.119.0/src/cell_data_provider.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-traits-0.119.0/src/epoch_provider.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-traits-0.119.0/src/extension_provider.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-traits-0.119.0/src/header_provider.rs
+
+/Users/xueyanli/vscode/ckb-contract-tests/target/debug/deps/ckb_traits-c10ce97f8741eb92.d: /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-traits-0.119.0/src/lib.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-traits-0.119.0/src/cell_data_provider.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-traits-0.119.0/src/epoch_provider.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-traits-0.119.0/src/extension_provider.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-traits-0.119.0/src/header_provider.rs
+
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-traits-0.119.0/src/lib.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-traits-0.119.0/src/cell_data_provider.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-traits-0.119.0/src/epoch_provider.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-traits-0.119.0/src/extension_provider.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ckb-traits-0.119.0/src/header_provider.rs:

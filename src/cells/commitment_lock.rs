@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
 use crate::cell_message::cell::MoleculeStructFlag;
-use serde_molecule::{dynvec_serde, big_array_serde, struct_serde};
 use crate::{impl_cell_methods, impl_cell_methods_without_import};
+use serde::{Deserialize, Serialize};
+use serde_molecule::{big_array_serde, dynvec_serde, struct_serde};
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct PendingHtlc {
@@ -29,7 +29,6 @@ pub struct CommitmentWitness {
     pub preimage: Option<[u8; 32]>,
 }
 
-
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct CommitmentWitnessNoHtlcAndPreImage {
     pub empty_witness_args: [u8; 16],
@@ -45,7 +44,6 @@ pub struct CommitmentWitnessNoHtlcAndPreImage {
     // #[serde(with = "struct_serde")]
     // pub preimage:Option<[u8;32]>
 }
-
 
 pub struct CommitmentCellNoHtlcAndPreImage {
     pub lock_arg: [u8; 20],
@@ -67,7 +65,6 @@ impl CommitmentCellNoHtlcAndPreImage {
     }
 }
 
-
 pub struct CommitmentCell {
     pub lock_arg: [u8; 20],
     pub type_arg: Option<u8>,
@@ -87,7 +84,6 @@ impl CommitmentCell {
         }
     }
 }
-
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct CommitmentPendinghtlc1Witness {
@@ -124,7 +120,6 @@ impl CommitmentHTCL1Cell {
         }
     }
 }
-
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct CommitmentPendinghtlc2Witness {
@@ -174,7 +169,6 @@ pub struct CommitmentPendinghtlc2WithPriImageWitness {
     pub preimage: [u8; 32],
 }
 
-
 pub struct CommitmentHTCL2WithPriImageAndUDTCell {
     pub lock_arg: [u8; 20],
     pub type_arg: Option<[u8; 32]>,
@@ -182,7 +176,6 @@ pub struct CommitmentHTCL2WithPriImageAndUDTCell {
     pub witness: Option<CommitmentPendinghtlc2WithPriImageWitness>,
     pub struct_flag: MoleculeStructFlag,
 }
-
 
 impl CommitmentHTCL2WithPriImageAndUDTCell {
     pub(crate) fn default() -> Self {
@@ -196,7 +189,6 @@ impl CommitmentHTCL2WithPriImageAndUDTCell {
     }
 }
 
-
 impl CommitmentHTCL2Cell {
     pub(crate) fn default() -> Self {
         CommitmentHTCL2Cell {
@@ -208,7 +200,6 @@ impl CommitmentHTCL2Cell {
         }
     }
 }
-
 
 pub struct CommitmentArgErrCell {
     pub lock_arg: [u8; 22],
@@ -261,7 +252,6 @@ impl CommitmentMinWitnessLenErrCell {
         }
     }
 }
-
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct CommitmentMaxErrLenWitness {
@@ -331,7 +321,6 @@ impl CommitmentHTCL1WithPreimageAndUDTCell {
         }
     }
 }
-
 
 impl_cell_methods!(CommitmentCellNoHtlcAndPreImage);
 impl_cell_methods_without_import!(CommitmentCell);

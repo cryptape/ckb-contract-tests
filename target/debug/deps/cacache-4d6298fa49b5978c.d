@@ -1,0 +1,20 @@
+/Users/xueyanli/vscode/ckb-contract-tests/target/debug/deps/libcacache-4d6298fa49b5978c.rmeta: /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/lib.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/async_lib.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/content/mod.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/content/path.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/content/read.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/content/rm.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/content/write.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/errors.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/index.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/get.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/ls.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/put.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/rm.rs
+
+/Users/xueyanli/vscode/ckb-contract-tests/target/debug/deps/cacache-4d6298fa49b5978c.d: /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/lib.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/async_lib.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/content/mod.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/content/path.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/content/read.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/content/rm.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/content/write.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/errors.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/index.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/get.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/ls.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/put.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/rm.rs
+
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/lib.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/async_lib.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/content/mod.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/content/path.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/content/read.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/content/rm.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/content/write.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/errors.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/index.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/get.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/ls.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/put.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cacache-12.0.0/src/rm.rs:
+
+# env-dep:CARGO_PKG_NAME=cacache
+# env-dep:CARGO_PKG_VERSION=12.0.0

@@ -1,20 +1,18 @@
+use crate::cell_message::cell::MoleculeStructFlag;
+use crate::cells::funding_lock::{FundingCell, FundingWitness};
+use crate::cells::funding_lock_err::{FundingErrCell, FundingErrWitness};
+use crate::prelude::ContextExt;
 use crate::ContractUtil;
 use ckb_testtool::{
     ckb_hash::blake2b_256,
     ckb_types::{core::TransactionBuilder, prelude::*},
 };
-use musig2::{
-    CompactSignature, FirstRound, KeyAggContext, PartialSignature, SecNonceSpices,
-};
+use musig2::{CompactSignature, FirstRound, KeyAggContext, PartialSignature, SecNonceSpices};
 use secp256k1::{
     rand::{self, RngCore},
     PublicKey, Secp256k1, SecretKey,
 };
-use sha2::{Digest};
-use crate::cell_message::cell::MoleculeStructFlag;
-use crate::cells::funding_lock::{FundingCell, FundingWitness};
-use crate::cells::funding_lock_err::{FundingErrCell, FundingErrWitness};
-use crate::prelude::ContextExt;
+use sha2::Digest;
 
 const EMPTY_WITNESS_ARGS: [u8; 16] = [16, 0, 0, 0, 16, 0, 0, 0, 16, 0, 0, 0, 16, 0, 0, 0];
 
@@ -23,7 +21,6 @@ fn test_funding_lock() {
     let mut ct = ContractUtil::new();
     let funding_lock_contract = ct.deploy_contract("funding-lock");
     let auth_contract = ct.deploy_contract("auth");
-
 
     // generate two random secret keys
     let sec_key_1 = SecretKey::new(&mut rand::thread_rng());
@@ -39,7 +36,6 @@ fn test_funding_lock() {
 
     // prepare scripts
     let pub_key_hash = blake2b_256(x_only_pub_key);
-
 
     let mut fc = FundingCell {
         lock_arg: <[u8; 20]>::try_from(pub_key_hash[0..20].to_vec().as_slice()).unwrap(),
@@ -68,7 +64,7 @@ fn test_funding_lock() {
             funding_out_point.to_vec(),
             tx_hash.to_vec(),
         ]
-            .concat(),
+        .concat(),
     );
 
     let mut first_round_1 = {
@@ -83,7 +79,7 @@ fn test_funding_lock() {
                 .with_seckey(sec_key_1)
                 .with_message(&message),
         )
-            .unwrap()
+        .unwrap()
     };
 
     let mut first_round_2 = {
@@ -98,7 +94,7 @@ fn test_funding_lock() {
                 .with_seckey(sec_key_2)
                 .with_message(&message),
         )
-            .unwrap()
+        .unwrap()
     };
 
     first_round_1
@@ -121,7 +117,6 @@ fn test_funding_lock() {
     assert_eq!(aggregated_signature_1, aggregated_signature_2);
     // println!("signature: {:?}", aggregated_signature_1.to_bytes());
 
-
     fc.witness = Some(FundingWitness {
         empty_witness_args: EMPTY_WITNESS_ARGS,
         version: 0u64,
@@ -132,10 +127,8 @@ fn test_funding_lock() {
 
     let tx = ct.replace_output(tx, funding_lock_contract, None, &fc, 500, 0);
 
-
     // run
-    let cycles = ct.context
-        .should_be_passed(&tx, 100000000).unwrap();
+    let cycles = ct.context.should_be_passed(&tx, 100000000).unwrap();
     println!("consume cycles: {}", cycles);
 }
 
@@ -144,7 +137,6 @@ fn test_multiple_inputs_err() {
     let mut ct = ContractUtil::new();
     let funding_lock_contract = ct.deploy_contract("funding-lock");
     let auth_contract = ct.deploy_contract("auth");
-
 
     let fc = FundingCell {
         lock_arg: [0; 20],
@@ -160,8 +152,7 @@ fn test_multiple_inputs_err() {
     let tx = ct.add_contract_cell_dep(tx, &auth_contract);
 
     let tx = ct.context.complete_tx(tx);
-    match ct.context
-        .should_be_failed(&tx, 100000000) {
+    match ct.context.should_be_failed(&tx, 100000000) {
         Ok(_) => {
             assert!(false)
         }
@@ -176,7 +167,6 @@ fn test_empty_witness_args_error() {
     let mut ct = ContractUtil::new();
     let funding_lock_contract = ct.deploy_contract("funding-lock");
     let auth_contract = ct.deploy_contract("auth");
-
 
     let fc = FundingCell {
         lock_arg: [0; 20],
@@ -197,8 +187,7 @@ fn test_empty_witness_args_error() {
     let tx = ct.add_contract_cell_dep(tx, &auth_contract);
 
     let tx = ct.context.complete_tx(tx);
-    match ct.context
-        .should_be_failed(&tx, 100000000) {
+    match ct.context.should_be_failed(&tx, 100000000) {
         Ok(_) => {
             assert!(false)
         }
@@ -215,7 +204,6 @@ fn test_witness_len_zero_error() {
     let funding_lock_contract = ct.deploy_contract("funding-lock");
     let auth_contract = ct.deploy_contract("auth");
 
-
     let fc = FundingCell {
         lock_arg: [0; 20],
         type_arg: None,
@@ -229,8 +217,7 @@ fn test_witness_len_zero_error() {
     let tx = ct.add_contract_cell_dep(tx, &auth_contract);
 
     let tx = ct.context.complete_tx(tx);
-    match ct.context
-        .should_be_failed(&tx, 100000000) {
+    match ct.context.should_be_failed(&tx, 100000000) {
         Ok(_) => {
             assert!(false)
         }
@@ -247,7 +234,6 @@ fn test_witness_len_error() {
     let funding_lock_contract = ct.deploy_contract("funding-lock");
     let auth_contract = ct.deploy_contract("auth");
 
-
     let fc = FundingErrCell {
         lock_arg: [0; 20],
         type_arg: None,
@@ -258,7 +244,7 @@ fn test_witness_len_error() {
             funding_out_point: [1; 36],
             pubkey: [1; 32],
             signature: [1; 64],
-            err:[1;32]
+            err: [1; 32],
         }),
         struct_flag: MoleculeStructFlag::default(),
     };
@@ -268,8 +254,7 @@ fn test_witness_len_error() {
     let tx = ct.add_contract_cell_dep(tx, &auth_contract);
 
     let tx = ct.context.complete_tx(tx);
-    match ct.context
-        .should_be_failed(&tx, 100000000) {
+    match ct.context.should_be_failed(&tx, 100000000) {
         Ok(_) => {
             assert!(false)
         }
@@ -285,7 +270,6 @@ fn test_funding_out_point_error() {
     let mut ct = ContractUtil::new();
     let funding_lock_contract = ct.deploy_contract("funding-lock");
     let auth_contract = ct.deploy_contract("auth");
-
 
     let fc = FundingCell {
         lock_arg: [0; 20],
@@ -306,8 +290,7 @@ fn test_funding_out_point_error() {
     let tx = ct.add_contract_cell_dep(tx, &auth_contract);
 
     let tx = ct.context.complete_tx(tx);
-    match ct.context
-        .should_be_failed(&tx, 100000000) {
+    match ct.context.should_be_failed(&tx, 100000000) {
         Ok(_) => {
             assert!(false)
         }
@@ -357,13 +340,11 @@ fn test_exec_cell_error() {
         struct_flag: MoleculeStructFlag::default(),
     };
 
-
     let tx = ct.add_outpoint(tx, funding_lock_contract.clone(), None, &fc, 500);
     let tx = ct.add_contract_cell_dep(tx, &auth_contract);
 
     let tx = ct.context.complete_tx(tx);
-    match ct.context
-        .should_be_failed(&tx, 100000000) {
+    match ct.context.should_be_failed(&tx, 100000000) {
         Ok(_) => {
             assert!(false)
         }

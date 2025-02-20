@@ -1,0 +1,12 @@
+/Users/xueyanli/vscode/ckb-contract-tests/target/debug/deps/libsecp-a1427c6685d5b908.rmeta: /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/lib.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/arithmetic.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/errors.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/points.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/scalars.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/serde.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/../README.md /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/../doc/API.md
+
+/Users/xueyanli/vscode/ckb-contract-tests/target/debug/deps/secp-a1427c6685d5b908.d: /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/lib.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/arithmetic.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/errors.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/points.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/scalars.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/serde.rs /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/../README.md /Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/../doc/API.md
+
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/lib.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/arithmetic.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/errors.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/points.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/scalars.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/serde.rs:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/../README.md:
+/Users/xueyanli/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp-0.2.4/src/../doc/API.md:
