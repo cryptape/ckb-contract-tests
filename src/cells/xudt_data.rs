@@ -35,7 +35,7 @@ impl XUDTDataCell {
                 data: true,
                 witness: true,
             },
-        };
+        }
     }
 
     pub(crate) fn new(type_arg: [u8; 32], data: XUDTData) -> Self {
@@ -52,7 +52,7 @@ impl XUDTDataCell {
                 data: true,
                 witness: true,
             },
-        };
+        }
     }
 }
 
