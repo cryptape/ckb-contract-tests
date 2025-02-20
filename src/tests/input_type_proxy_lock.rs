@@ -173,7 +173,7 @@ fn test_2_to_0_type_hash_eq_args() {
 ///     匹配的type不在同一个cell
 ///         return 0
 #[test]
-fn test_2_to_0_type_hash_eq_args_in_diff_cell(){
+fn test_2_to_0_type_hash_eq_args_in_diff_cell() {
     let mut ct = ContractUtil::new();
     let input_type_proxy_contract = ct.deploy_contract("input-type-proxy-lock");
     let tx = TransactionBuilder::default().build();
@@ -201,7 +201,6 @@ fn test_2_to_0_type_hash_eq_args_in_diff_cell(){
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 3000);
     let tx = ct.context.complete_tx(tx);
     ct.context.should_be_passed(&tx, 1000000).expect("Encoding");
-
 }
 
 
@@ -214,7 +213,7 @@ fn test_2_to_0_type_hash_eq_args_in_diff_cell(){
 ///     匹配的type在同一个cell
 ///         return 0
 #[test]
-fn test_2_to_0_type_hash_eq_args_in_same_cell(){
+fn test_2_to_0_type_hash_eq_args_in_same_cell() {
     let mut ct = ContractUtil::new();
     let input_type_proxy_contract = ct.deploy_contract("input-type-proxy-lock");
     let tx = TransactionBuilder::default().build();
@@ -254,7 +253,7 @@ fn test_2_to_0_type_hash_eq_args_in_same_cell(){
 ///     都不匹配
 ///         return 0
 #[test]
-fn test_2_to_0_type_hash_not_eq_args_in_same_cell(){
+fn test_2_to_0_type_hash_not_eq_args_in_same_cell() {
     let mut ct = ContractUtil::new();
     let input_type_proxy_contract = ct.deploy_contract("input-type-proxy-lock");
     let tx = TransactionBuilder::default().build();
@@ -271,7 +270,7 @@ fn test_2_to_0_type_hash_not_eq_args_in_same_cell(){
 
     // let hash = blake2b_256(ct.context.get_cell(&tx.inputs().get(1).unwrap().previous_output()).unwrap().0.type_().to_opt().expect("type script").as_slice());
     let input_cell = ITPLCell {
-        lock_arg: [1;32],
+        lock_arg: [1; 32],
         type_arg: Some(2),
         data: 0,
         witness: None,
@@ -282,5 +281,6 @@ fn test_2_to_0_type_hash_not_eq_args_in_same_cell(){
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), None, &input_cell, 3000);
     let tx = ct.context.complete_tx(tx);
     let ret = ct.context.should_be_failed(&tx, 1000000).expect_err("InvalidUnlock");
+
     assert!(ret.to_string().contains("code 6"))
 }

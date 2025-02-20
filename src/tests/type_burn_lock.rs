@@ -1,6 +1,6 @@
-use ckb_std::ckb_types::prelude::Entity;
 use ckb_testtool::ckb_hash::blake2b_256;
 use ckb_testtool::ckb_types::core::TransactionBuilder;
+use ckb_testtool::ckb_types::prelude::Entity;
 use crate::cell_message::cell::MoleculeStructFlag;
 use crate::{ContractUtil, impl_cell_methods, impl_cell_methods_without_import};
 use crate::prelude::ContextExt;

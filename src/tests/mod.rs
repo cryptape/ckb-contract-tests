@@ -8,3 +8,4 @@ mod input_type_proxy_lock;
 mod output_type_proxy_lock;
 mod single_use_lock;
 mod type_burn_lock;
+mod ckb_script_ipc_demo;

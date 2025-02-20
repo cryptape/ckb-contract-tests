@@ -28,7 +28,6 @@ mod cells;
 mod cell_message;
 
 pub mod prelude {
-    use ckb_std::ckb_types::core::ScriptHashType;
     use ckb_testtool::{
         ckb_error::Error,
         ckb_types::core::{Cycle, TransactionView},
@@ -49,7 +48,7 @@ pub mod prelude {
 // The exact same Loader code from capsule's template, except that
 // now we use MODE as the environment variable
 const TEST_ENV_VAR: &str = "MODE";
-const DEFAULT_TYPE: ScriptHashType = ScriptHashType::Data1;
+const DEFAULT_TYPE: ScriptHashType = ScriptHashType::Data2;
 
 pub enum TestEnv {
     Debug,

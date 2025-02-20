@@ -177,6 +177,7 @@ fn test_1_to_0_other_lock_lock_hash_eq_args() {
 
     let tx = ct.context.complete_tx(tx);
     let ret = ct.context.should_be_failed(&tx, 1000000).expect_err("InvalidUnlock");
+    println!("ret:{}",ret);
     assert!(ret.to_string().contains("code 6"))
 }
 

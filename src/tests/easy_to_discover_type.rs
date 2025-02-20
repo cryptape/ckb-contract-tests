@@ -110,6 +110,7 @@ fn test_0_to_1_data_hash_not_match() {
     let tx = ct.add_outpoint(tx, ct.alway_contract.clone(), Some(easy_to_discover_type_contract.clone()), &easy_cell, 1000);
     let tx = ct.context.complete_tx(tx);
     let ret1 = ct.context.should_be_failed(&tx, 1000000).expect_err("DataHashNotMatch");
+    println!("ret1:{:?}",ret1);
     assert!(ret1.to_string().contains("code 6"));
 }
 
