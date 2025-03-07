@@ -32,3 +32,70 @@ fn test_parse_method_with_return_type() {
     let ret1 = ct.context.should_be_passed(&tx, 1000000);
     println!("ret:{:?}", ret1);
 }
+
+
+#[test]
+fn test_invalid_request() {
+
+    let input_token_cell = Demo::default();
+    let mut ct = ContractUtil::new();
+    let serve_contract = ct.deploy_contract("../../demo/build/release/test_invalid_request-serve");
+    let client_contract = ct.deploy_contract("../../demo/build/release/test_invalid_request-client");
+
+    let mut tx = TransactionBuilder::default().build();
+    tx = ct.add_input(tx, client_contract.clone(), None, &input_token_cell, 100);
+    tx = ct.add_contract_cell_dep(tx,&serve_contract);
+    tx = ct.context.complete_tx(tx);
+    let ret1 = ct.context.should_be_passed(&tx, 10000000);
+    println!("ret:{:?}", ret1);
+}
+
+
+#[test]
+fn test_forever_loop() {
+
+    let input_token_cell = Demo::default();
+    let mut ct = ContractUtil::new();
+    let serve_contract = ct.deploy_contract("../../demo/build/release/test_loop_request-serve");
+    let client_contract = ct.deploy_contract("../../demo/build/release/test_loop_request-client");
+
+    let mut tx = TransactionBuilder::default().build();
+    tx = ct.add_input(tx, client_contract.clone(), None, &input_token_cell, 100);
+    tx = ct.add_contract_cell_dep(tx,&serve_contract);
+    tx = ct.context.complete_tx(tx);
+    let ret1 = ct.context.should_be_failed(&tx, 1000000000);
+    println!("ret:{:?}", ret1);
+}
+
+#[test]
+fn test_single_forever_loop() {
+
+    let input_token_cell = Demo::default();
+    let mut ct = ContractUtil::new();
+    let serve_contract = ct.deploy_contract("../../demo/build/release/test_single_loop_request-sreve");
+    let client_contract = ct.deploy_contract("../../demo/build/release/test_single_loop_request-client");
+
+    let mut tx = TransactionBuilder::default().build();
+    tx = ct.add_input(tx, client_contract.clone(), None, &input_token_cell, 100);
+    tx = ct.add_contract_cell_dep(tx,&serve_contract);
+    tx = ct.context.complete_tx(tx);
+    let ret1 = ct.context.should_be_failed(&tx, 1000000000);
+    println!("ret:{:?}", ret1);
+}
+
+#[test]
+fn test_GeneralIoError() {
+
+    let input_token_cell = Demo::default();
+    let mut ct = ContractUtil::new();
+    let serve_contract = ct.deploy_contract("../../demo/build/release/test_single_loop_request-client");
+    let client_contract = ct.deploy_contract("../../demo/build/release/test_single_loop_request-client");
+
+    let mut tx = TransactionBuilder::default().build();
+    tx = ct.add_input(tx, client_contract.clone(), None, &input_token_cell, 100);
+    tx = ct.add_contract_cell_dep(tx,&serve_contract);
+    tx = ct.context.complete_tx(tx);
+    let ret1 = ct.context.should_be_failed(&tx, 1000000000);
+    println!("ret:{:?}", ret1);
+}
+

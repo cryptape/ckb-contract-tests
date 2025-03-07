@@ -1,5 +1,5 @@
 [package]
-name = "ckb-script-ipc-demo"
+name = "test_single_loop_request"
 version = "1.0.0"
 edition = "2021"
 
@@ -12,9 +12,9 @@ ckb-script-ipc = { git = "https://github.com/XuJiandong/ckb-script-ipc", rev = "
 log = "0.4.25"
 
 [[bin]]
-name = "bin1"
-path = "src/main.rs"
+name = "test_single_loop_request-client"
+path = "src/client.rs"
 
 [[bin]]
-name = "ckb-script-ipc-demo"
-path = "src/main.rs"
+name = "test_single_loop_request-serve"
+path = "src/server.rs"

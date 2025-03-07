@@ -9,6 +9,9 @@ members = [
   "contracts/ckb-script-ipc-demo",
   "contracts/ckb-script-ipc-test",
   "tests",
+  "contracts/test_invalid_request",
+  "contracts/test_loop_request",
+  "contracts/test_single_loop_request"
 ]
 
 [profile.release]
