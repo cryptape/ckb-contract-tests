@@ -72,7 +72,7 @@ fn test_single_forever_loop() {
 
     let input_token_cell = Demo::default();
     let mut ct = ContractUtil::new();
-    let serve_contract = ct.deploy_contract("../../demo/build/release/test_single_loop_request-sreve");
+    let serve_contract = ct.deploy_contract("../../demo/build/release/test_single_loop_request-serve");
     let client_contract = ct.deploy_contract("../../demo/build/release/test_single_loop_request-client");
 
     let mut tx = TransactionBuilder::default().build();
