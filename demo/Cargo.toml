@@ -11,7 +11,8 @@ members = [
   "tests",
   "contracts/test_invalid_request",
   "contracts/test_loop_request",
-  "contracts/test_single_loop_request"
+  "contracts/test_single_loop_request",
+  "contracts/test_large_data_handling"
 ]
 
 [profile.release]

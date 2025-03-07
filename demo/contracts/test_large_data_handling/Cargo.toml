@@ -1,0 +1,19 @@
+[package]
+name = "test_large_data_handling"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+ckb-std = { version = "0.17.0", default-features = false, features = ["allocator", "ckb-types", "dummy-atomic", "log"]}
+ckb-script-ipc-common = { version = "1.0.1", features = ["enable-logging"] }
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+ckb-script-ipc = { version = "1.0.1" }
+log = "0.4.25"
+
+[[bin]]
+name = "test_large_data_request-client"
+path = "src/client.rs"
+
+[[bin]]
+name = "test_large_data_request-serve"
+path = "src/server.rs"
