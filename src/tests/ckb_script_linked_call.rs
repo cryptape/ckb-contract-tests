@@ -7,7 +7,7 @@ use crate::prelude::ContextExt;
 
 #[test]
 fn test_basic_chain_call() {
-    let mut input_token_cell = XUDTDataCell::new([1; 32], XUDTData { amount: 13 });
+    let mut input_token_cell = XUDTDataCell::new([1; 32], XUDTData { amount: 14 });
     let mut ct = ContractUtil::new();
     let server_contract = ct.deploy_contract("../../demo/build/release/linked_server");
     let client_contract = ct.deploy_contract("../../demo/build/release/linked_client");
@@ -19,7 +19,7 @@ fn test_basic_chain_call() {
     tx = ct.context.complete_tx(tx);
     ct.context.should_be_passed(&tx, 100000000);
 
-    input_token_cell.data.amount = 14;
+    input_token_cell.data.amount = 15;
     let mut tx = TransactionBuilder::default().build();
     tx = ct.add_input(tx, ct.alway_contract.clone(), Some(client_contract.clone()), &input_token_cell, 100);
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), Some(client_contract.clone()), &input_token_cell, 100);
@@ -65,8 +65,8 @@ fn test_chain_error_propagation() {
     tx = ct.add_outpoint(tx, ct.alway_contract.clone(), Some(client_contract.clone()), &input_token_cell, 100);
     tx = ct.add_contract_cell_dep(tx, &server_contract);
     tx = ct.context.complete_tx(tx);
-    ct.context.should_be_passed(&tx, 100000000);
+    ct.context.should_be_failed(&tx, 100000000);
 
-  
+
 
 }
