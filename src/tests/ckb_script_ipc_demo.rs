@@ -114,3 +114,37 @@ fn test_large_data_handling() {
     let ret1 = ct.context.should_be_failed(&tx, 1000000000);
     println!("ret:{:?}", ret1);
 }
+
+
+#[test]
+fn test_serialization_simple_types() {
+
+    let input_token_cell = Demo::default();
+    let mut ct = ContractUtil::new();
+    let serve_contract = ct.deploy_contract("../../demo/build/release/test_serialize-serve");
+    let client_contract = ct.deploy_contract("../../demo/build/release/test_serialize-client");
+
+    let mut tx = TransactionBuilder::default().build();
+    tx = ct.add_input(tx, client_contract.clone(), None, &input_token_cell, 100);
+    tx = ct.add_contract_cell_dep(tx,&serve_contract);
+    tx = ct.context.complete_tx(tx);
+    let ret1 = ct.context.should_be_passed(&tx, 1000000000);
+    println!("ret:{:?}", ret1);
+}
+
+
+#[test]
+fn test_serialization_complex_types() {
+
+    let input_token_cell = Demo::default();
+    let mut ct = ContractUtil::new();
+    let serve_contract = ct.deploy_contract("../../demo/build/release/test_serialize-complex_serve");
+    let client_contract = ct.deploy_contract("../../demo/build/release/test_serialize-complex_client");
+
+    let mut tx = TransactionBuilder::default().build();
+    tx = ct.add_input(tx, client_contract.clone(), None, &input_token_cell, 100);
+    tx = ct.add_contract_cell_dep(tx,&serve_contract);
+    tx = ct.context.complete_tx(tx);
+    let ret1 = ct.context.should_be_passed(&tx, 1000000000);
+    println!("ret:{:?}", ret1);
+}
