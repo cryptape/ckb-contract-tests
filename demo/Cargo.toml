@@ -8,6 +8,7 @@ members = [
   "contracts/first-contract",
   "contracts/ckb-script-ipc-demo",
   "contracts/ckb-script-ipc-test",
+  "contracts/exec-contract",
   "tests",
 ]
 
