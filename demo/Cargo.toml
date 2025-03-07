@@ -10,6 +10,12 @@ members = [
   "contracts/ckb-script-ipc-test",
   "contracts/exec-contract",
   "tests",
+  "contracts/test_invalid_request",
+  "contracts/test_loop_request",
+  "contracts/test_single_loop_request",
+  "contracts/test_large_data_handling",
+  "contracts/test_serialize",
+  "contracts/test_serialize_complex"
 ]
 
 [profile.release]
