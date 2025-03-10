@@ -1,0 +1,15 @@
+[package]
+name = "exec-contract"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ckb-std = "0.17.0"
+
+[features]
+native-simulator = ["ckb-std/native-simulator"]
+
+
+[[bin]]
+name = "exec-arg-length"
+path = "src/exec_arg_length.rs"

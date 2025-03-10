@@ -7,16 +7,16 @@ extern crate alloc;
 pub mod def;
 pub mod error;
 
-use ckb_std::{log::info};
+use ckb_std::log::info;
 
 use crate::def::World;
 use alloc::{format, string::String};
 use ckb_script_ipc_common::spawn::run_server;
 
+use crate::error::Error;
 #[cfg(not(test))]
 use ckb_std::default_alloc;
 use ckb_std::logger;
-use crate::error::Error;
 
 #[cfg(not(test))]
 ckb_std::entry!(program_entry);
@@ -37,9 +37,7 @@ struct WorldServer {
 
 impl WorldServer {
     fn new() -> Self {
-        WorldServer {
-            data: 2
-        }
+        WorldServer { data: 2 }
     }
 }
 
