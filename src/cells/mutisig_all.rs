@@ -2,8 +2,8 @@ use bytes::Bytes;
 use ckb_testtool::ckb_crypto::secp::Privkey;
 use ckb_testtool::ckb_hash;
 use ckb_testtool::ckb_jsonrpc_types::{Deserialize, Serialize};
-use crate::cell_message::cell::{ MoleculeStructFlag};
-use crate::impl_cell_methods;
+use crate::cell_message::cell::{MoleculeStructFlag};
+use crate::{impl_cell_methods, impl_cell_methods_without_import};
 
 pub struct MutisigAllArgs {
     pub S: u8,
@@ -20,7 +20,7 @@ impl MutisigAllArgs {
             .iter()
             .map(|key| key.pubkey().unwrap())
             .collect::<Vec<_>>();
-        let mut script = vec![0u8, self.R, self.M, pubkeys.len() as u8];
+        let mut script = vec![self.S, self.R, self.M, pubkeys.len() as u8];
         pubkeys.iter().for_each(|pubkey| {
             script.extend_from_slice(&blake160(&pubkey.serialize()));
         });
@@ -34,16 +34,27 @@ impl MutisigAllArgs {
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct MutisigAllArgsData {
-    pub Hash: [u8; 20],
+    pub hash: [u8; 20],
     pub since: Option<u64>,
 }
 
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct WitnessArg {
-    pub lock: Bytes,
-    pub input_type: Option<Bytes>,
-    pub output_type: Option<Bytes>,
+    pub lock: Option<Vec<u8>>,
+    pub input_type: Option<Vec<u8>>,
+    pub output_type: Option<Vec<u8>>,
+}
+
+impl WitnessArg {
+    pub fn default() -> Self {
+        WitnessArg {
+            lock: None,
+            input_type: None,
+            output_type: None,
+        }
+    }
+    
 }
 
 pub struct MutisigAllCell {
@@ -54,9 +65,9 @@ pub struct MutisigAllCell {
     pub struct_flag: MoleculeStructFlag,
 }
 
-impl_cell_methods!(MutisigAllCell);
 
-// impl_cell_methods!(MutisigAllArgs);
+
+impl_cell_methods!(MutisigAllCell);
 
 impl MutisigAllCell {
     pub fn new(lock_arg: MutisigAllArgsData, type_arg: Option<u8>, data: u8, witness: Option<WitnessArg>, struct_flag: MoleculeStructFlag) -> Self {
@@ -71,7 +82,7 @@ impl MutisigAllCell {
     fn default() -> Self {
         MutisigAllCell {
             lock_arg: MutisigAllArgsData {
-                Hash: [0u8; 20],
+                hash: [0u8; 20],
                 since: None,
             },
             type_arg: None,
