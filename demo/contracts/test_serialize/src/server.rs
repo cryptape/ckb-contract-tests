@@ -7,8 +7,6 @@ extern crate alloc;
 pub mod def;
 pub mod error;
 
-use ckb_std::{log::info};
-
 use crate::def::World;
 use alloc::{format, string::String};
 use ckb_script_ipc_common::spawn::run_server;
