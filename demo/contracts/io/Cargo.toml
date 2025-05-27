@@ -1,0 +1,39 @@
+[package]
+name = "io"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+ckb-std = { version = "0.17.0", default-features = false, features = ["allocator", "ckb-types", "dummy-atomic", "log"]}
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+ckb-script-ipc = { version = "1.0.1" }
+ckb-script-ipc-common = { version = "1.0.1" }
+#ckb-rust-std = { version = "1.0.0", features = ["rust_before_181"]}
+ckb-rust-std = { version = "1.0.0"}
+
+[[bin]]
+name = "buffered"
+path = "src/buffered.rs"
+
+[[bin]]
+name = "copy"
+path = "src/copy.rs"
+
+[[bin]]
+name = "cursor"
+path = "src/cursor.rs"
+
+[[bin]]
+name = "io_all"
+path = "src/io_all.rs"
+
+[[bin]]
+name = "impls"
+path = "src/impls.rs"
+[[bin]]
+name = "util"
+path = "src/util.rs"
+
+[profile.release]
+strip = true
+codegen-units = 1
