@@ -4,13 +4,12 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
-ckb-std = { version = "0.16", default-features = false, features = ["allocator", "ckb-types", "dummy-atomic", "log"]}
-#ckb-script-ipc-common = { path = "../../crates/ckb-script-ipc-common" }
-ckb-script-ipc-common = "1.0.0"
-
+ckb-std = { version = "0.17.0", default-features = false, features = ["allocator", "ckb-types", "dummy-atomic", "log"]}
+ckb-script-ipc-common = { version = "1.0.3", features = ["enable-logging"] }
 
 serde = { version = "1.0", default-features = false, features = ["derive"] }
-ckb-script-ipc = "1.0.0"
+ckb-script-ipc = { version = "1.0.3" }
+log = "0.4.25"
 
 [[bin]]
 name = "bin1"

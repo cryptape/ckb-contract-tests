@@ -6,7 +6,7 @@ TOP := $(cur_dir)
 # RUSTFLAGS that are likely to be tweaked by developers. For example,
 # while we enable debug logs by default here, some might want to strip them
 # for minimal code size / consumed cycles.
-CUSTOM_RUSTFLAGS := --cfg debug_assertions
+CUSTOM_RUSTFLAGS := -C debug-assertions=yes
 # RUSTFLAGS that are less likely to be tweaked by developers. Most likely
 # one would want to keep the default values here.
 FULL_RUSTFLAGS := -C target-feature=+zba,+zbb,+zbc,+zbs,-a $(CUSTOM_RUSTFLAGS)
@@ -25,7 +25,7 @@ BUILD_DIR :=
 # likely match the crate name, which is also the name of the final binary.
 # However if this is not the case, you can tweak this variable. As the name hints,
 # more than one binary is supported here.
-BINARIES := "ckb-script-ipc-test-serve" "ckb-script-ipc-test-client"
+BINARIES := "ckb-script-ipc-test-serve" "ckb-script-ipc-test-client" "large_data_server" "large_data_client" "large_data_client2" "boundary_server" "boundary_client" "linked_server" "linked_client" "complex_chain_call_client" "chain_error_propagation_client"
 
 ifeq (release,$(MODE))
 	MODE_ARGS := --release

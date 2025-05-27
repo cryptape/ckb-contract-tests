@@ -9,3 +9,7 @@ mod output_type_proxy_lock;
 mod single_use_lock;
 mod type_burn_lock;
 mod ckb_script_ipc_demo;
+mod exec;
+mod ckb_script_ipc_larger;
+mod ckb_script_ipc_boundary;
+mod ckb_script_linked_call;

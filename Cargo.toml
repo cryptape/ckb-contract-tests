@@ -5,7 +5,7 @@ edition = "2021"
 
 
 [dependencies]
-ckb-testtool = "0.14.1"
+ckb-testtool = "0.15.0"
 serde_json = "1.0"
 bytes = "1.5.0"
 serde = { version = "1.0.209", features = ["derive"] }
@@ -16,7 +16,7 @@ hex = "0.4.3"
 syn = "2.0.98"
 
 [dev-dependencies]
-ckb-std = "0.16.4"
+ckb-std = "0.17.0"
 bitcoin = { version = "0.31", features = ["serde"] }
 log = "0.4"
 env_logger = "0.11"

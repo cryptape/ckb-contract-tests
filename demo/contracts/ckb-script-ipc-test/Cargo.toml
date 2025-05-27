@@ -4,12 +4,11 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
-ckb-std = { version = "0.16", default-features = false, features = ["allocator", "ckb-types", "dummy-atomic", "log"]}
-#ckb-script-ipc-common = { path = "../../crates/ckb-script-ipc-common" }
-ckb-script-ipc-common = "1.0.0"
-
+ckb-std = { version = "0.17.0", default-features = false, features = ["allocator", "ckb-types", "dummy-atomic", "log"]}
+#ckb-script-ipc-common = { version = "1.0.1", features = ["enable-logging"] }
+ckb-script-ipc-common = { version = "1.0.3" }
 serde = { version = "1.0", default-features = false, features = ["derive"] }
-ckb-script-ipc = "1.0.0"
+ckb-script-ipc = { version = "1.0.3" }
 log = "0.4.25"
 
 [[bin]]
@@ -19,3 +18,41 @@ path = "src/client.rs"
 [[bin]]
 name = "ckb-script-ipc-test-serve"
 path = "src/server.rs"
+
+[[bin]]
+name = "large_data_server"
+path = "src/large_data_server.rs"
+
+[[bin]]
+name = "large_data_client"
+path = "src/large_data_client.rs"
+
+[[bin]]
+name = "large_data_client2"
+path = "src/large_data_client_2.rs"
+
+[[bin]]
+name = "boundary_server"
+path = "src/boundary_server.rs"
+
+[[bin]]
+name = "boundary_client"
+path = "src/boundary_client.rs"
+
+[[bin]]
+name = "linked_server"
+path = "src/linked_server.rs"
+
+
+[[bin]]
+name = "linked_client"
+path = "src/linked_client.rs"
+
+[[bin]]
+name = "complex_chain_call_client"
+path = "src/complex_chain_call_client.rs"
+
+[[bin]]
+name = "chain_error_propagation_client"
+path = "src/chain_error_propagation_client.rs"
+
