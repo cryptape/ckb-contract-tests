@@ -13,3 +13,4 @@ mod exec;
 mod ckb_script_ipc_larger;
 mod ckb_script_ipc_boundary;
 mod ckb_script_linked_call;
+mod test_multisig;
