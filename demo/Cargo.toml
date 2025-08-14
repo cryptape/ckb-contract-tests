@@ -15,7 +15,8 @@ members = [
   "contracts/test_single_loop_request",
   "contracts/test_large_data_handling",
   "contracts/test_serialize",
-  "contracts/test_serialize_complex"
+  "contracts/test_serialize_complex",
+  "contracts/io"
 ]
 
 [profile.release]
